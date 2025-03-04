@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --setupFiles ./tests/setup.js --forceExit --detectOpenHandles",
+    "test:watch": "jest --watch --setupFiles ./tests/setup.js",
+    "test:coverage": "jest --coverage --setupFiles ./tests/setup.js --forceExit --detectOpenHandles"
   },
   "keywords": [],
   "author": "",
@@ -21,5 +23,23 @@
     "mongoose": "^8.11.0",
     "multer": "^1.4.5-lts.1",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0",
+    "mongodb-memory-server-core": "8.12.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.js"],
+    "collectCoverageFrom": [
+      "routes/**/*.js",
+      "models/**/*.js",
+      "middleware/**/*.js",
+      "utils/**/*.js"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
   }
 }
