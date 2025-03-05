@@ -18,7 +18,7 @@ const ProjectSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  status: {   // ✅ Added missing status field
+  status: {   // Added missing status field
     type: String,
     default: 'Pending'
   },
@@ -32,6 +32,10 @@ const ProjectSchema = new mongoose.Schema({
   },
   chartData: {
     type: mongoose.Schema.Types.Mixed, // Mixed type to store flexible JSON data
+    default: null,
+  },
+  futurePredictions: {
+    type: mongoose.Schema.Types.Mixed,
     default: null,
   },
   uploadedAt: {

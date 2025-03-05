@@ -137,7 +137,6 @@ const ProjectSummary = () => {
                 {project.chartData.ExpensesByCategory && (
                   <div>
                     <h4 className="text-lg font-medium">Expenses by Category</h4>
-                    {/* <Line data={project.chartData.ExpensesByCategory}   */}
                     <Line 
                        data={{
                           labels: project.chartData.ExpensesByCategory.labels,
@@ -165,6 +164,49 @@ const ProjectSummary = () => {
                      options={{ responsive: true }} />
                   </div>
                 )}
+              </div>
+            </section>
+          )}
+
+          {project?.futurePredictions && (
+            <section className="mb-8">
+              <h3 className="text-xl font-medium mb-4">Future Predictions</h3>
+              <div className="w-full">
+                <Line
+                  data={{
+                    labels: project.futurePredictions.labels,
+                    datasets: project.futurePredictions.datasets.map((dataset, index) => ({
+                      ...dataset,
+                      borderColor: index === 0 ? '#4CAF50' : '#F44336',
+                      backgroundColor: index === 0 ? 'rgba(76, 175, 80, 0.2)' : 'rgba(244, 67, 54, 0.2)',
+                    }))
+                  }}
+                  options={{
+                    responsive: true,
+                    plugins: {
+                      title: {
+                        display: true,
+                        text: 'Future Financial Predictions',
+                        font: {
+                          size: 16,
+                          weight: 'bold'
+                        }
+                      },
+                      legend: {
+                        position: 'top',
+                      }
+                    },
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        title: {
+                          display: true,
+                          text: 'Amount'
+                        }
+                      }
+                    }
+                  }}
+                />
               </div>
             </section>
           )}

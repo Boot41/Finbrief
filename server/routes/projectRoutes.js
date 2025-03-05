@@ -83,6 +83,7 @@ router.post('/analyze/:id', protect, async (req, res) => {
     project.summary = analysisData.Summary;
     project.insights = analysisData.KeyInsights;
     project.chartData = analysisData.ChartData;
+    project.futurePredictions = analysisData.FuturePredictions;
     project.status = 'analyzed';
 
     await project.save();
@@ -180,5 +181,25 @@ router.get('/charts/:id', protect, async (req, res) => {
   }
 });
 
+// Get predictions for a specific project
+router.get('/predictions/:id', protect, async (req, res) => {
+  try {
+    const project = await Project.findOne({ _id: req.params.id, userId: req.userId });
+    
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    if (!project.futurePredictions) {
+      return res.status(400).json({ message: 'Predictions not available yet' });
+    }
+
+    res.json({
+      futurePredictions: project.futurePredictions
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 module.exports = router;

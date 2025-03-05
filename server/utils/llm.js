@@ -65,6 +65,18 @@ module.exports.analyzeFinancialData = async (filePath) => {
           }
         }
       }
+        "FuturePredictions": {
+            "labels": ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            "datasets": [{
+              "label": "Predicted Revenue",
+              "data": [2100, 2300, 2500, 2700, 2900, 3100]
+            }, {
+              "label": "Predicted Expenses",
+              "data": [1700, 1800, 1900, 2000, 2100, 2200]
+            }]
+          }
+        }
+      }
     `;
 
   // Get the response from Google AI
