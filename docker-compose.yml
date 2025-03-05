@@ -25,7 +25,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongo:27017/finbrief
       - JWT_SECRET=mysecretkey
-      - GOOGLE_API_KEY="AIzaSyCAB6UX4aF51jL_njugbGOKg-xoK65B9S0"
+      - GOOGLE_API_KEY=AIzaSyCAB6UX4aF51jL_njugbGOKg-xoK65B9S0
 
 
 
