@@ -4,18 +4,21 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const protect = (req, res, next) => {
-  const token = req.headers.token ;
-  const decodedData = jwt.verify(token ,process.env.JWT_SECRET)
+  try {
+    const token = req.headers.token;
+    if (!token) {
+      return res.status(403).json({ message: 'Incorrect Credential' });
+    }
 
-  if(decodedData){
-    req.userId = decodedData.userId
-    next();
-  }
-
-  else{
-    res.staus(403).json({
-      message: "Incorrect Credential"
-    })
+    const decodedData = jwt.verify(token, process.env.JWT_SECRET || 'testsecret');
+    if (decodedData) {
+      req.userId = decodedData.userId;
+      next();
+    } else {
+      return res.status(403).json({ message: 'Incorrect Credential' });
+    }
+  } catch (err) {
+    return res.status(403).json({ message: 'Incorrect Credential' });
   }
 };
 

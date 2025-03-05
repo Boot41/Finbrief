@@ -6,7 +6,6 @@ const { analyzeFinancialData } = require('../utils/llm');
 
 const router = express.Router();
 
-
 // Upload a new project file
 router.post('/', protect, upload.single('file'), handleMulterError, async (req, res) => {
   const file = req.file;
@@ -32,16 +31,7 @@ router.post('/', protect, upload.single('file'), handleMulterError, async (req, 
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-    
-  //   res.status(201).json({
-  //     message: 'File uploaded successfully',
-  //     projectId: project._id
-  //   });
-  // } catch (error) {
-  //   res.status(500).json({ message: error.message });
-  // }
 });
-
 
 // Analyze uploaded file using LLM
 router.post('/analyze/:id', protect, async (req, res) => {
@@ -96,8 +86,6 @@ router.post('/analyze/:id', protect, async (req, res) => {
   }
 });
 
-
-
 // Get all projects for a user
 router.get('/', protect, async (req, res) => {
   try {
@@ -107,7 +95,6 @@ router.get('/', protect, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
 
 // Get a specific project
 router.get('/:id', protect, async (req, res) => {
@@ -122,6 +109,25 @@ router.get('/:id', protect, async (req, res) => {
   }
 });
 
+// Update project status
+router.patch('/:id/status', protect, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const project = await Project.findOneAndUpdate(
+      { _id: req.params.id, userId: req.userId },
+      { status },
+      { new: true }
+    );
+    
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+    
+    res.json(project);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 // Update project summary and insights
 router.patch('/:id', protect, async (req, res) => {
@@ -143,7 +149,6 @@ router.patch('/:id', protect, async (req, res) => {
   }
 });
 
-
 // Delete a project
 router.delete('/:id', protect, async (req, res) => {
   try {
@@ -156,7 +161,6 @@ router.delete('/:id', protect, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
 
 // Get chart data for a specific project
 router.get('/charts/:id', protect, async (req, res) => {
