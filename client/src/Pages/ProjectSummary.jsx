@@ -444,7 +444,7 @@ const ProjectSummary = () => {
 
           {/* Footer with Download Button */}
           <div className="bg-slate-50 dark:bg-slate-700/30 px-6 py-4 flex justify-end">
-            <button
+            {/* <button
               onClick={handlePrint}
               className="inline-flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors duration-300 focus:ring-4 focus:ring-emerald-300 focus:outline-none shadow-sm"
             >
@@ -463,7 +463,7 @@ const ProjectSummary = () => {
                 />
               </svg>
               Download PDF
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

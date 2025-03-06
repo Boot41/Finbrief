@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest --setupFiles ./tests/setup.js --forceExit --detectOpenHandles",
-    "test:watch": "jest --watch --setupFiles ./tests/setup.js",
-    "test:coverage": "jest --coverage --setupFiles ./tests/setup.js --forceExit --detectOpenHandles"
+    "test": "jest --forceExit --detectOpenHandles --coverage",
+    "test:watch": "jest --watch"
   },
   "keywords": [],
   "author": "",
@@ -26,8 +25,8 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
-    "supertest": "^7.0.0",
-    "mongodb-memory-server-core": "8.12.2"
+    "supertest": "^6.3.4",
+    "mongodb-memory-server": "^9.1.6"
   },
   "jest": {
     "testEnvironment": "node",

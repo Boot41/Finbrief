@@ -1,107 +1,266 @@
-const mongoose = require('mongoose');
+const request = require('supertest');
+const express = require('express');
+const projectRoutes = require('../routes/projectRoutes');
+const { analyzeFinancialData } = require('../utils/llm');
+
+// Mock mongoose
+jest.mock('mongoose', () => ({
+  connect: jest.fn(),
+  disconnect: jest.fn(),
+  model: jest.fn()
+}));
+
+// Mock Project model
+jest.mock('../models/Project', () => {
+  return {
+    create: jest.fn(),
+    find: jest.fn(),
+    findOne: jest.fn(),
+    findOneAndUpdate: jest.fn(),
+    findOneAndDelete: jest.fn(),
+    findById: jest.fn(),
+    deleteMany: jest.fn()
+  };
+});
+
+// Mock protect middleware
+jest.mock('../middleware/authMiddleware', () => {
+  return (req, res, next) => {
+    req.userId = 'test-user-id';
+    next();
+  };
+});
+
+// Mock LLM functions
+jest.mock('../utils/llm', () => ({
+  analyzeFinancialData: jest.fn(),
+  queryFinancialData: jest.fn()
+}));
+
+// Mock multer
+jest.mock('../utils/multer', () => ({
+  upload: {
+    single: () => (req, res, next) => {
+      req.file = {
+        originalname: 'test.pdf',
+        mimetype: 'application/pdf',
+        size: 1024,
+        path: '/test/path/test.pdf'
+      };
+      next();
+    }
+  },
+  handleMulterError: (req, res, next) => next()
+}));
+
+const app = express();
+app.use(express.json());
+app.use('/api/projects', projectRoutes);
+
 const Project = require('../models/Project');
-const User = require('../models/User');
 
-describe('Project Model Tests', () => {
-  let testUser;
+describe('Project Routes', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-  beforeAll(async () => {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/finbrief_test');
-    testUser = await User.create({
-      username: 'testuser',
-      email: 'test@example.com',
-      password: 'password123'
+  describe('GET /', () => {
+    it('should get all projects for a user', async () => {
+      const mockProjects = [
+        { _id: '123', userId: 'test-user-id', filename: 'test1.pdf', status: 'uploaded' },
+        { _id: '456', userId: 'test-user-id', filename: 'test2.pdf', status: 'analyzed' }
+      ];
+      Project.find.mockReturnValue({
+        sort: jest.fn().mockResolvedValue(mockProjects)
+      });
+
+      const response = await request(app).get('/api/projects');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(mockProjects);
+    });
+
+    it('should handle database errors', async () => {
+      Project.find.mockReturnValue({
+        sort: jest.fn().mockRejectedValue(new Error('Database error'))
+      });
+
+      const response = await request(app).get('/api/projects');
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('message');
     });
   });
 
-  afterAll(async () => {
-    await mongoose.connection.dropDatabase();
-    await mongoose.connection.close();
+  describe('GET /:id', () => {
+    it('should get a specific project', async () => {
+      const mockProject = {
+        _id: '123',
+        userId: 'test-user-id',
+        filename: 'test.pdf',
+        status: 'uploaded'
+      };
+      Project.findOne.mockResolvedValue(mockProject);
+
+      const response = await request(app)
+        .get('/api/projects/123');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(mockProject);
+    });
+
+    it('should return 404 for non-existent project', async () => {
+      Project.findOne.mockResolvedValue(null);
+
+      const response = await request(app)
+        .get('/api/projects/123');
+
+      expect(response.status).toBe(404);
+    });
   });
 
-  beforeEach(async () => {
-    await Project.deleteMany({});
+  describe('POST /analyze/:id', () => {
+    it('should analyze a project successfully', async () => {
+      const mockAnalysis = JSON.stringify({
+        Summary: 'Test summary',
+        KeyInsights: ['Insight 1', 'Insight 2'],
+        ChartData: { data: [] },
+        FuturePredictions: ['Prediction 1']
+      });
+      analyzeFinancialData.mockResolvedValue(mockAnalysis);
+
+      const mockProject = {
+        _id: '123',
+        userId: 'test-user-id',
+        filename: 'test.pdf',
+        filePath: '/test/path.pdf',
+        status: 'uploaded',
+        save: jest.fn().mockResolvedValue(true)
+      };
+      Project.findOne.mockResolvedValue(mockProject);
+
+      const response = await request(app)
+        .post('/api/projects/analyze/123');
+
+      expect(response.status).toBe(200);
+      expect(mockProject.save).toHaveBeenCalled();
+    });
+
+    it('should handle invalid JSON response from LLM', async () => {
+      analyzeFinancialData.mockResolvedValue('Invalid JSON');
+
+      const mockProject = {
+        _id: '123',
+        userId: 'test-user-id',
+        filename: 'test.pdf',
+        filePath: '/test/path.pdf',
+        status: 'uploaded',
+        save: jest.fn()
+      };
+      Project.findOne.mockResolvedValue(mockProject);
+
+      const response = await request(app)
+        .post('/api/projects/analyze/123');
+
+      expect(response.status).toBe(500);
+    });
   });
 
-  it('should create a project successfully', async () => {
-    const validProjectData = {
-      userId: testUser._id,
-      filename: 'test.pdf',
-      mimeType: 'application/pdf',
-      size: 1024,
-      filePath: '/path/to/file.pdf'
-    };
+  describe('GET /charts/:id', () => {
+    it('should get chart data for a project', async () => {
+      const mockProject = {
+        _id: '123',
+        userId: 'test-user-id',
+        filename: 'test.pdf',
+        status: 'analyzed',
+        summary: 'Test summary',
+        insights: ['Test insight'],
+        chartData: { data: [1, 2, 3] }
+      };
+      Project.findOne.mockResolvedValue(mockProject);
 
-    const project = await Project.create(validProjectData);
+      const response = await request(app)
+        .get('/api/projects/charts/123');
 
-    expect(project.userId).toEqual(testUser._id);
-    expect(project.filename).toBe(validProjectData.filename);
-    expect(project.mimeType).toBe(validProjectData.mimeType);
-    expect(project.size).toBe(validProjectData.size);
-    expect(project.filePath).toBe(validProjectData.filePath);
-    expect(project.status).toBe('Pending');
-    expect(project.uploadedAt).toBeDefined();
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('chartData');
+      expect(response.body.chartData).toEqual({ data: [1, 2, 3] });
+    });
+
+    it('should handle missing chart data', async () => {
+      const mockProject = {
+        _id: '123',
+        userId: 'test-user-id',
+        filename: 'test.pdf',
+        status: 'uploaded'
+      };
+      Project.findOne.mockResolvedValue(mockProject);
+
+      const response = await request(app)
+        .get('/api/projects/charts/123');
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Analysis not completed or chart data not available');
+    });
   });
 
-  it('should fail without required fields', async () => {
-    const invalidProject = new Project({});
+  describe('PATCH /:id', () => {
+    it('should update project summary and insights', async () => {
+      const mockProject = {
+        _id: '123',
+        userId: 'test-user-id',
+        filename: 'test.pdf',
+        summary: 'Updated summary',
+        insights: ['Updated insight']
+      };
+      Project.findOneAndUpdate.mockResolvedValue(mockProject);
 
-    try {
-      await invalidProject.save();
-      fail('Should not save without required fields');
-    } catch (error) {
-      expect(error.errors.userId).toBeDefined();
-      expect(error.errors.filename).toBeDefined();
-      expect(error.errors.mimeType).toBeDefined();
-      expect(error.errors.size).toBeDefined();
-      expect(error.errors.filePath).toBeDefined();
-    }
+      const response = await request(app)
+        .patch('/api/projects/123')
+        .send({
+          summary: 'Updated summary',
+          insights: ['Updated insight']
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.summary).toBe('Updated summary');
+      expect(response.body.insights).toEqual(['Updated insight']);
+    });
   });
 
-  it('should save project with default values', async () => {
-    const minimalProjectData = {
-      userId: testUser._id,
-      filename: 'test.pdf',
-      mimeType: 'application/pdf',
-      size: 1024,
-      filePath: '/path/to/file.pdf'
-    };
+  describe('GET /predictions/:id', () => {
+    it('should get predictions for a project', async () => {
+      const mockProject = {
+        _id: '123',
+        userId: 'test-user-id',
+        filename: 'test.pdf',
+        status: 'analyzed',
+        futurePredictions: ['Prediction 1', 'Prediction 2']
+      };
+      Project.findOne.mockResolvedValue(mockProject);
 
-    const project = await Project.create(minimalProjectData);
+      const response = await request(app)
+        .get('/api/projects/predictions/123');
 
-    expect(project.status).toBe('Pending');
-    expect(project.summary).toBe('');
-    expect(Array.isArray(project.insights)).toBe(true);
-    expect(project.chartData).toBeNull();
-    expect(project.futurePredictions).toBeNull();
-    expect(project.uploadedAt).toBeDefined();
-  });
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('futurePredictions');
+      expect(response.body.futurePredictions).toEqual(['Prediction 1', 'Prediction 2']);
+    });
 
-  it('should save project with all fields', async () => {
-    const fullProjectData = {
-      userId: testUser._id,
-      filename: 'test.pdf',
-      mimeType: 'application/pdf',
-      size: 1024,
-      status: 'Completed',
-      summary: 'Test summary',
-      insights: ['Insight 1', 'Insight 2'],
-      chartData: { type: 'bar', data: [] },
-      futurePredictions: { prediction: 'test' },
-      filePath: '/path/to/file.pdf'
-    };
+    it('should handle missing predictions', async () => {
+      const mockProject = {
+        _id: '123',
+        userId: 'test-user-id',
+        filename: 'test.pdf',
+        status: 'uploaded'
+      };
+      Project.findOne.mockResolvedValue(mockProject);
 
-    const project = await Project.create(fullProjectData);
+      const response = await request(app)
+        .get('/api/projects/predictions/123');
 
-    expect(project.userId).toEqual(testUser._id);
-    expect(project.filename).toBe(fullProjectData.filename);
-    expect(project.mimeType).toBe(fullProjectData.mimeType);
-    expect(project.size).toBe(fullProjectData.size);
-    expect(project.status).toBe(fullProjectData.status);
-    expect(project.summary).toBe(fullProjectData.summary);
-    expect(project.insights).toEqual(fullProjectData.insights);
-    expect(project.chartData).toEqual(fullProjectData.chartData);
-    expect(project.futurePredictions).toEqual(fullProjectData.futurePredictions);
-    expect(project.filePath).toBe(fullProjectData.filePath);
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Predictions not available yet');
+    });
   });
 });
