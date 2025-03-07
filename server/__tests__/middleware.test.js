@@ -1,16 +1,5 @@
 const jwt = require('jsonwebtoken');
 const protect = require('../middleware/authMiddleware');
-const User = require('../models/User');
-
-// Mock jsonwebtoken
-jest.mock('jsonwebtoken', () => ({
-  verify: jest.fn()
-}));
-
-// Mock User model
-jest.mock('../models/User', () => ({
-  findById: jest.fn()
-}));
 
 describe('Auth Middleware', () => {
   let mockReq;
@@ -28,43 +17,28 @@ describe('Auth Middleware', () => {
     nextFunction = jest.fn();
   });
 
-  it('should return 403 if no token is provided', async () => {
-    await protect(mockReq, mockRes, nextFunction);
-
+  it('should return 403 if no token is provided', () => {
+    protect(mockReq, mockRes, nextFunction);
     expect(mockRes.status).toHaveBeenCalledWith(403);
     expect(mockRes.json).toHaveBeenCalledWith({ message: 'Incorrect Credential' });
     expect(nextFunction).not.toHaveBeenCalled();
   });
 
-  it('should return 403 if token format is invalid', async () => {
-    mockReq.headers.authorization = 'InvalidFormat';
+  it('should call next() with valid token', () => {
+    const userId = '123';
+    const token = jwt.sign({ userId }, process.env.JWT_SECRET || 'testsecret');
+    mockReq.headers.token = token;
 
-    await protect(mockReq, mockRes, nextFunction);
-
-    expect(mockRes.status).toHaveBeenCalledWith(403);
-    expect(mockRes.json).toHaveBeenCalledWith({ message: 'Incorrect Credential' });
-    expect(nextFunction).not.toHaveBeenCalled();
+    protect(mockReq, mockRes, nextFunction);
+    
+    expect(nextFunction).toHaveBeenCalled();
+    expect(mockReq.userId).toBe(userId);
   });
 
-  it('should return 403 if token verification fails', async () => {
-    mockReq.headers.authorization = 'Bearer invalidtoken';
-    jwt.verify.mockImplementation(() => {
-      throw new Error('Invalid token');
-    });
-
-    await protect(mockReq, mockRes, nextFunction);
-
-    expect(mockRes.status).toHaveBeenCalledWith(403);
-    expect(mockRes.json).toHaveBeenCalledWith({ message: 'Incorrect Credential' });
-    expect(nextFunction).not.toHaveBeenCalled();
-  });
-
-  it('should return 403 if user is not found', async () => {
-    jwt.verify.mockReturnValue({ id: 'nonexistentuser' });
-    User.findById.mockResolvedValue(null);
-    mockReq.headers.authorization = 'Bearer validtoken';
-
-    await protect(mockReq, mockRes, nextFunction);
+  it('should return 403 if token is invalid', () => {
+    mockReq.headers.token = 'invalid-token';
+    
+    protect(mockReq, mockRes, nextFunction);
 
     expect(mockRes.status).toHaveBeenCalledWith(403);
     expect(mockRes.json).toHaveBeenCalledWith({ message: 'Incorrect Credential' });

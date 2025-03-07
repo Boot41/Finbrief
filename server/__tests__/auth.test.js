@@ -5,23 +5,16 @@ const jwt = require('jsonwebtoken');
 const authRoutes = require('../routes/authRoutes');
 const User = require('../models/User');
 
-// Mock bcryptjs
-jest.mock('bcryptjs', () => ({
-  hash: jest.fn(),
-  compare: jest.fn()
-}));
-
-// Mock jsonwebtoken
-jest.mock('jsonwebtoken', () => ({
-  sign: jest.fn()
-}));
-
 // Mock User model
-jest.mock('../models/User', () => ({
-  findOne: jest.fn(),
-  create: jest.fn(),
-  findById: jest.fn()
-}));
+jest.mock('../models/User', () => {
+  return {
+    findOne: jest.fn(),
+    findById: jest.fn(),
+    prototype: {
+      matchPassword: jest.fn()
+    }
+  };
+});
 
 const app = express();
 app.use(express.json());
@@ -32,7 +25,38 @@ describe('Auth Routes', () => {
     jest.clearAllMocks();
   });
 
-  it('should have auth routes configured', () => {
-    expect(app._router.stack).toBeDefined();
+  describe('POST /api/auth/login', () => {
+    it('should return 401 with incorrect credentials', async () => {
+      const mockUser = {
+        email: 'test@example.com',
+        matchPassword: jest.fn().mockResolvedValue(false)
+      };
+
+      User.findOne.mockResolvedValue(mockUser);
+
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'test@example.com',
+          password: 'wrongpassword'
+        });
+
+      expect(response.status).toBe(401);
+      expect(response.body.message).toBe('Invalid email or password');
+    });
+
+    it('should return 401 if user not found', async () => {
+      User.findOne.mockResolvedValue(null);
+
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'nonexistent@example.com',
+          password: 'password123'
+        });
+
+      expect(response.status).toBe(401);
+      expect(response.body.message).toBe('Invalid email or password');
+    });
   });
 });
