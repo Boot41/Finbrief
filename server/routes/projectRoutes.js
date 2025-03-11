@@ -1,7 +1,7 @@
 const express = require('express');
 const Project = require('../models/Project');
 const protect = require('../middleware/authMiddleware'); 
-const { upload, handleMulterError } = require('../utils/multer');
+const { upload, handleMulterError, upload_mul } = require('../utils/multer');
 const { analyzeFinancialData, queryFinancialData } = require('../utils/llm');
 
 const router = express.Router();

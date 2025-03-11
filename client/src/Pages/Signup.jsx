@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { BarChart3 } from 'lucide-react';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -31,7 +32,21 @@ const Signup = () => {
     }
   };
 
-  return (
+  return (<div>
+
+  <header className="sticky top-0 z-50 bg-white shadow-sm">
+  <div className="container mx-auto px-4 py-4">
+    <nav className="flex justify-between items-center">
+      <div className="flex items-center space-x-2 text-blue-600">
+        <BarChart3 size={32} />
+      <button>
+        <span className="text-2xl font-bold " onClick={() => navigate("/")} >FinBrief</span>
+      </button>
+      </div>
+
+    </nav>
+  </div>
+</header>
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-100">
       <div className="bg-white p-8 rounded-xl shadow-2xl w-96 transform transition-all duration-300 hover:shadow-3xl">
         <h2 className="text-3xl font-bold text-indigo-900 mb-8 text-center">Sign Up</h2>
@@ -103,6 +118,7 @@ const Signup = () => {
           </Link>
         </p>
       </div>
+    </div>
     </div>
   );
 };

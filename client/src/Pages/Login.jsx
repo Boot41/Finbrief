@@ -34,6 +34,22 @@ const Login = ({ onLogin }) => {
   };
 
   return (
+    <div>
+
+  <header className="sticky top-0 z-50 bg-white shadow-sm">
+  <div className="container mx-auto px-4 py-4">
+    <nav className="flex justify-between items-center">
+      <div className="flex items-center space-x-2 text-blue-600">
+        <BarChart3 size={32} />
+        <button>
+        <span className="text-2xl font-bold " onClick={() => navigate("/")} >FinBrief</span>
+      </button>
+      </div>
+
+    </nav>
+  </div>
+</header>
+
     <div className="min-h-screen bg-gradient-to-r from-blue-50 to-indigo-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
@@ -111,6 +127,7 @@ const Login = ({ onLogin }) => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };

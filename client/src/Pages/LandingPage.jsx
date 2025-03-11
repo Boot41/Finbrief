@@ -7,32 +7,33 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header/Navigation */}
-      <header className="sticky top-0 z-50 bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <nav className="flex justify-between items-center">
-            <div className="flex items-center space-x-2 text-blue-600">
-              <BarChart3 size={32} />
-              <span className="text-2xl font-bold">FinBrief</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate("/login")}
-                className="text-blue-600 hover:text-blue-800 font-semibold px-4 py-2"
-              >
-                Login
-              </button>
-              {/* <button
-                onClick={() => navigate("/signup")}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold
-                         hover:bg-blue-700 transition duration-200"
-              >
-                Get Started
-              </button> */}
-            </div>
-          </nav>
-        </div>
-      </header>
+    {/* Header/Navigation */}
+<header className="sticky top-0 z-50 bg-white shadow-sm">
+  <div className="container mx-auto px-4 py-4">
+    <nav className="flex justify-between items-center">
+      <div className="flex items-center space-x-2 text-blue-600">
+        <BarChart3 size={32} />
+        <span className="text-2xl font-bold">FinBrief</span>
+      </div>
+      <div className="flex items-center space-x-4">
+        <button
+          onClick={() => navigate("/login")}
+          className="text-blue-600 hover:text-blue-800 font-semibold px-4 py-2"
+        >
+          Login
+        </button>
+        <button
+          onClick={() => navigate("/signup")}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold
+                     hover:bg-blue-700 transition duration-200"
+        >
+          Signup
+        </button>
+      </div>
+    </nav>
+  </div>
+</header>
+
 
       {/* Hero Section */}
       <section className="py-16 md:py-24 bg-gradient-to-r from-blue-50 to-blue-100">

@@ -51,6 +51,13 @@ const upload = multer({
   fileFilter: fileFilter
 });
 
+// Initialize multer for multiple file upload
+const upload_mul = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB file limit (optional)
+}).array("files", 10); // 'files' is the field name, max 10 files
+
+
 // Error handling middleware
 const handleMulterError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
@@ -64,4 +71,4 @@ const handleMulterError = (err, req, res, next) => {
   next();
 };
 
-module.exports = { upload, handleMulterError };
+module.exports = { upload, handleMulterError, upload_mul };

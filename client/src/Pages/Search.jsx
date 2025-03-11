@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState , useRef } from "react" // Add useRef for managing speech recognition
 import { useLocation } from "react-router-dom"
 import axios from "axios"
 import { Line, Bar, Pie, Doughnut } from "react-chartjs-2"
@@ -39,6 +39,56 @@ const Search = () => {
   const [error, setError] = useState(null)
   const location = useLocation()
   const projectId = new URLSearchParams(location.search).get("projectId")
+  const [isListening, setIsListening] = useState(false) // Track speech recognition state
+  const recognitionRef = useRef(null) // Ref for speech recognition instance
+
+  // Initialize speech recognition
+  const initializeSpeechRecognition = () => {
+    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition
+    if (!SpeechRecognition) {
+      setError("Speech recognition is not supported in this browser.")
+      return
+    }
+
+    recognitionRef.current = new SpeechRecognition()
+    recognitionRef.current.continuous = false // Stop after one sentence
+    recognitionRef.current.interimResults = false // Only final results
+    recognitionRef.current.lang = "en-US" // Set language
+
+    recognitionRef.current.onstart = () => {
+      setIsListening(true)
+    }
+
+    recognitionRef.current.onend = () => {
+      setIsListening(false)
+    }
+
+    recognitionRef.current.onresult = (event) => {
+      const transcript = event.results[0][0].transcript
+      setSearchQuery(transcript) // Update search input with transcribed text
+    }
+
+    recognitionRef.current.onerror = (event) => {
+      setError("Speech recognition error: " + event.error)
+      setIsListening(false)
+    }
+  }
+
+  // Start speech recognition
+  const startListening = () => {
+    if (!recognitionRef.current) {
+      initializeSpeechRecognition()
+    }
+    recognitionRef.current.start()
+  }
+
+  // Stop speech recognition
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+    }
+  }
+
 
   const handleSearch = async (e) => {
     e.preventDefault()
@@ -48,7 +98,7 @@ const Search = () => {
     setError(null)
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/projects/search/${projectId}?query=${encodeURIComponent(searchQuery)}`,
+`http://localhost:5000/api/projects/search/${projectId}?query=${encodeURIComponent(searchQuery)}`,
         {
           headers: {
             token: localStorage.getItem("token"),
@@ -353,23 +403,26 @@ const Search = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-8">
-        <h1 className="text-3xl font-bold text-indigo-900 mb-8 flex items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-8 mr-3 text-indigo-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-            />
-          </svg>
-          Search Financial Data
-        </h1>
+      <div className="flex justify-center items-center">
+  <h1 className="text-3xl font-bold text-indigo-900 mb-8 flex items-center">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-8 w-8 mr-3 text-indigo-600"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+      />
+    </svg>
+    Search Financial Data
+  </h1>
+</div>
+      
 
         {/* Search Form */}
         <form onSubmit={handleSearch} className="mb-8">
@@ -398,6 +451,29 @@ const Search = () => {
                 placeholder="Ask any question about your financial data..."
                 className="w-full pl-10 pr-4 py-3 rounded-xl border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-300 shadow-sm"
               />
+
+               {/* Microphone Button */}
+               <button
+                type="button"
+                onClick={isListening ? stopListening : startListening}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={`h-5 w-5 ${isListening ? "text-red-500" : "text-gray-400"}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0-4H3m15 0h3m-3-7a7 7 0 00-7-7m0 0a7 7 0 00-7 7m7-7v4m0-4h14"
+                  />
+                </svg>
+              </button>
+
             </div>
             <button
               type="submit"
