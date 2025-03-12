@@ -1,8 +1,7 @@
 "use client"
-
-import { useState, useEffect } from "react"
-import { useRef } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { ArrowRight , ArrowLeft } from "lucide-react";
+import { useState, useEffect, useRef } from "react"
+import { useParams, useNavigate, Link } from "react-router-dom"
 import axios from "axios"
 import { Line } from "react-chartjs-2"
 import {
@@ -119,21 +118,18 @@ const ProjectSummary = () => {
             <strong className="font-semibold text-lg">Error</strong>
           </div>
           <p className="mb-4">{error}</p>
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors duration-300 focus:ring-4 focus:ring-indigo-300 focus:outline-none"
-          >
+          <Link to="/dashboard" className="mr-3 text-indigo-600 hover:text-indigo-800 inline-flex items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-2"
+              className="h-6 w-6 mr-1"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to Dashboard
-          </button>
+            Go to Dashboard
+          </Link>
         </div>
       </div>
     )
@@ -145,21 +141,24 @@ const ProjectSummary = () => {
         <div className="bg-white dark:bg-slate-800 shadow-xl rounded-xl overflow-hidden">
           {/* Header */}
           <div className="bg-indigo-600 dark:bg-indigo-700 text-white px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <h1 className="text-2xl md:text-3xl font-bold">Project Summary</h1>
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="inline-flex items-center px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 font-medium rounded-lg transition-colors duration-300 focus:ring-4 focus:ring-white/30 focus:outline-none"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+            {/* Left side: "<" button + Title */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="text-xl font-bold text-white hover:text-indigo-200 transition-colors duration-300"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back to Dashboard
+                <ArrowLeft className="h-5 w-5 mr-2" />
+              </button>
+              <h1 className="text-2xl md:text-3xl font-bold">Project Summary</h1>
+            </div>
+
+            {/* Right side: now goes to "/search" instead of "/dashboard" */}
+            <button
+              onClick={() => navigate(`/search/?projectId=${id}`)}
+              className="inline-flex items-center px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white font-medium rounded-lg transition-colors duration-300 focus:ring-4 focus:ring-pink-300 focus:outline-none"
+            >
+          <ArrowRight className="h-5 w-5 mr-2" />
+              Search Page
             </button>
           </div>
 
@@ -277,8 +276,8 @@ const ProjectSummary = () => {
                             labels: project.chartData.ExpensesByCategory.labels,
                             datasets: project.chartData.ExpensesByCategory.datasets.map((dataset) => ({
                               ...dataset,
-                              borderColor: "pink", // Add this line to change the color
-                              backgroundColor: "rgba(255, 99, 132, 0.2)", // Background color under the line
+                              borderColor: "pink",
+                              backgroundColor: "rgba(255, 99, 132, 0.2)",
                             })),
                           }}
                           options={{
@@ -293,18 +292,18 @@ const ProjectSummary = () => {
                             scales: {
                               x: {
                                 grid: {
-                                  color: "rgba(203, 213, 225, 0.2)", // Very light slate-200
+                                  color: "rgba(203, 213, 225, 0.2)",
                                 },
                                 ticks: {
-                                  color: "#64748b", // text-slate-500
+                                  color: "#64748b",
                                 },
                               },
                               y: {
                                 grid: {
-                                  color: "rgba(203, 213, 225, 0.2)", // Very light slate-200
+                                  color: "rgba(203, 213, 225, 0.2)",
                                 },
                                 ticks: {
-                                  color: "#64748b", // text-slate-500
+                                  color: "#64748b",
                                 },
                               },
                             },
@@ -322,8 +321,8 @@ const ProjectSummary = () => {
                             labels: project.chartData.TotalExpenses.labels,
                             datasets: project.chartData.TotalExpenses.datasets.map((dataset) => ({
                               ...dataset,
-                              borderColor: "pink", // Add this line to change the color
-                              backgroundColor: "rgba(255, 99, 132, 0.2)", // Background color under the line
+                              borderColor: "pink",
+                              backgroundColor: "rgba(255, 99, 132, 0.2)",
                             })),
                           }}
                           options={{
@@ -331,25 +330,25 @@ const ProjectSummary = () => {
                             plugins: {
                               legend: {
                                 labels: {
-                                  color: "#64748b", // text-slate-500
+                                  color: "#64748b",
                                 },
                               },
                             },
                             scales: {
                               x: {
                                 grid: {
-                                  color: "rgba(203, 213, 225, 0.2)", // Very light slate-200
+                                  color: "rgba(203, 213, 225, 0.2)",
                                 },
                                 ticks: {
-                                  color: "#64748b", // text-slate-500
+                                  color: "#64748b",
                                 },
                               },
                               y: {
                                 grid: {
-                                  color: "rgba(203, 213, 225, 0.2)", // Very light slate-200
+                                  color: "rgba(203, 213, 225, 0.2)",
                                 },
                                 ticks: {
-                                  color: "#64748b", // text-slate-500
+                                  color: "#64748b",
                                 },
                               },
                             },
@@ -407,17 +406,17 @@ const ProjectSummary = () => {
                         legend: {
                           position: "top",
                           labels: {
-                            color: "#64748b", // text-slate-500
+                            color: "#64748b",
                           },
                         },
                       },
                       scales: {
                         x: {
                           grid: {
-                            color: "rgba(203, 213, 225, 0.2)", // Very light slate-200
+                            color: "rgba(203, 213, 225, 0.2)",
                           },
                           ticks: {
-                            color: "#64748b", // text-slate-500
+                            color: "#64748b",
                           },
                         },
                         y: {
@@ -425,13 +424,13 @@ const ProjectSummary = () => {
                           title: {
                             display: true,
                             text: "Amount",
-                            color: "#64748b", // text-slate-500
+                            color: "#64748b",
                           },
                           grid: {
-                            color: "rgba(203, 213, 225, 0.2)", // Very light slate-200
+                            color: "rgba(203, 213, 225, 0.2)",
                           },
                           ticks: {
-                            color: "#64748b", // text-slate-500
+                            color: "#64748b",
                           },
                         },
                       },
@@ -442,9 +441,10 @@ const ProjectSummary = () => {
             )}
           </div>
 
-          {/* Footer with Download Button */}
+          {/* Footer with Download Button (commented out as example) */}
+          {/* 
           <div className="bg-slate-50 dark:bg-slate-700/30 px-6 py-4 flex justify-end">
-            {/* <button
+            <button
               onClick={handlePrint}
               className="inline-flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors duration-300 focus:ring-4 focus:ring-emerald-300 focus:outline-none shadow-sm"
             >
@@ -463,8 +463,9 @@ const ProjectSummary = () => {
                 />
               </svg>
               Download PDF
-            </button> */}
-          </div>
+            </button>
+          </div> 
+          */}
         </div>
       </div>
     </div>
@@ -472,4 +473,3 @@ const ProjectSummary = () => {
 }
 
 export default ProjectSummary
-
