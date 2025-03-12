@@ -138,3 +138,53 @@ module.exports.queryFinancialData = async (filePath, userQuery) => {
     const responseText = await generateContent(queryPrompt);
     return responseText;
 };
+
+
+
+module.exports.analyzeMultipleFinancialFiles = async (filePaths) => {
+  let combinedExcelText = "";
+  
+  for (const filePath of filePaths) {
+      const excelText = await inputExcelText(filePath);
+      combinedExcelText += `\nFile: ${filePath}\n${excelText}\n`;
+  }
+
+  const inputPrompt = `
+      Act as a highly experienced financial analyst. 
+      Your task is to analyze the provided financial data from multiple sources including transactions, audits, debits, credits, and other records.
+
+      Please perform the following:
+      - Summarize key financial insights from all files
+      - Compare financial trends across different files
+      - Generate aggregated data for charts (e.g., revenue trends, expenses, etc.)
+
+      Here is the raw financial data extracted from multiple Excel files:
+      ${combinedExcelText}
+
+      I want the response in valid JSON format with the following structure:
+      {
+        "Summary": "",
+        "KeyInsights": [],
+        "ComparativeAnalysis": "",
+        "ChartData": {
+          "OverallExpenses": {
+            "labels": ["File 1", "File 2", "File 3", ...],
+            "datasets": [{
+              "label": "Total Expenses",
+              "data": [1000, 1500, 1200]
+            }]
+          },
+          "RevenueTrends": {
+            "labels": ["Jan", "Feb", "Mar", ...],
+            "datasets": [{
+              "label": "Combined Revenue",
+              "data": [2100, 2300, 2500]
+            }]
+          }
+        }
+      }
+  `;
+
+  const responseText = await generateContent(inputPrompt);
+  return responseText;
+};

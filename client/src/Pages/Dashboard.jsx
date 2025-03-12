@@ -165,87 +165,68 @@ const Dashboard = () => {
       {/* Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700">
         <div className="p-6 border-b border-gray-200 dark:border-slate-700">
-          <h1 className="text-2xl font-bold text-indigo-600 dark:text-indigo-300">Finbrief</h1>
+        <Link to="/"> <h1 className="text-2xl font-bold text-indigo-600 dark:text-indigo-300">Finbrief</h1></Link>
         </div>
 
         {/* Example Sidebar Navigation */}
         <nav className="flex-1 p-6 space-y-2 text-gray-600 dark:text-gray-400">
-          <h2 className="text-sm uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-2">Projects</h2>
-          <ul className="space-y-1">
-            {/* You could list some static links here, or a short list of recent projects */}
-            <li>
-              <Link
-                to="/"
-                className="block px-2 py-2 rounded hover:bg-gray-100 dark:hover:bg-slate-700 transition"
-              >
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="#"
-                className="block px-2 py-2 rounded hover:bg-gray-100 dark:hover:bg-slate-700 transition"
-              >
-                Projects
-              </Link>
-            </li>
-            <li>
-              {/* <Link
-                to="#"
-                className="block px-2 py-2 rounded hover:bg-gray-100 dark:hover:bg-slate-700 transition"
-              >
-                Examples
-              </Link> */}
-            </li>
-          </ul>
+  <h2 className="text-sm uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-2">Projects</h2>
+  <ul className="space-y-1">
+    {projects.slice(0, 5).map((project) => ( // Show first 5 projects
+      <li key={project._id}>
+        <Link
+          to={`/project/${project._id}`}
+          className="block px-2 py-2 rounded hover:bg-gray-100 dark:hover:bg-slate-700 transition truncate"
+          title={project.filename}
+        >
+          {project.filename}
+        </Link>
+      </li>
+    ))}
+    {projects.length === 0 && (
+      <li className="text-sm text-gray-500 dark:text-gray-400 italic">
+        No projects yet
+      </li>
+    )}
+    {projects.length > 5 && (
+      <li className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">
+        <Link to="#" className="block px-2 py-2">
+          View all projects ({projects.length})
+        </Link>
+      </li>
+    )}
+  </ul>
+</nav>
 
-          {/* Pro Tip card at the bottom */}
-          <div className="mt-6 p-4 bg-indigo-50 dark:bg-slate-700 rounded-lg text-sm text-gray-700 dark:text-gray-200">
-            <h3 className="font-semibold text-indigo-600 dark:text-indigo-200 mb-1">Pro Tip</h3>
-            <p>Use Ctrl+S or Cmd+S to quickly save your diagram.</p>
-          </div>
-        </nav>
+ {/* Logout Button */}
+ <div className="mt-auto p-6 border-t border-gray-200 dark:border-slate-700">
+    <button
+      onClick={() => navigate("/signup")} // Navigate to the signup page
+      className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-6 w-6"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+        />
+      </svg>
+      <span>Logout</span>
+    </button>
+  </div>
       </aside>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         {/* Top Bar */}
         <header className="flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
-          {/* Search bar */}
-          <div className="relative w-full max-w-md mr-2">
-            <svg
-              className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M8 16a6 6 0 1110.32-4.906l4.387 4.387a1 1 0
-                01-1.414 1.414l-4.387-4.387A6 6 0 018 16z"
-              />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search for projects, diagrams..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300
-              dark:border-slate-600 dark:bg-slate-700 dark:text-gray-200 focus:outline-none
-              focus:ring-2 focus:ring-indigo-300"
-            />
-          </div>
-
-          {/* User Info + Create New Project */}
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => setModal(true)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg px-4 py-2 
-              flex items-center gap-2 transition-all duration-300 shadow-sm hover:shadow-md
-              focus:ring-4 focus:ring-indigo-300 focus:outline-none"
-              disabled={isLoading}
-            >
-              Create New Project
-            </button>
-          </div>
         </header>
 
         {/* Main Scrollable Content */}
@@ -278,9 +259,9 @@ const Dashboard = () => {
                 Quick Tips
               </h2>
               <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-300">
-                <li>Create projects to organize related Excel files</li>
-                <li>Use Ctrl+S or Cmd+S to quickly save the project</li>
-                <li>Export Excel files in multiple formats for your documentation</li>
+                <li>Simply upload your Excel files </li>
+                <li>Our AI automatically processes and analyzes your financial data</li>
+                <li>Get instant visualizations, insights, and answers to your questions</li>
               </ul>
             </div>
           </div>

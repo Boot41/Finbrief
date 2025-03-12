@@ -1,5 +1,5 @@
 "use client"
-
+import { Link, useNavigate } from "react-router-dom"
 import { useState , useRef } from "react" // Add useRef for managing speech recognition
 import { useLocation } from "react-router-dom"
 import axios from "axios"
@@ -403,8 +403,28 @@ const Search = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-8">
-      <div className="flex justify-center items-center">
+      <div className="flex justify-between items-center">
   <h1 className="text-3xl font-bold text-indigo-900 mb-8 flex items-center">
+
+    {/* Back Arrow Icon */}
+    <Link to="/dashboard" className="mr-3 text-indigo-600 hover:text-indigo-800">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-8 w-8"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M15 19l-7-7 7-7"
+        />
+      </svg>
+    </Link>
+
+
     <svg
       xmlns="http://www.w3.org/2000/svg"
       className="h-8 w-8 mr-3 text-indigo-600"

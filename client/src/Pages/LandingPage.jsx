@@ -77,129 +77,82 @@ const LandingPage = () => {
 
       {/* Features Section */}
       <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4 text-gray-900">Powerful Features</h2>
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-              Everything you need to analyze and understand your financial data in one place
-            </p>
+  <div className="container mx-auto px-6 text-center">
+    <h2 className="text-4xl font-extrabold text-blue-600">Powerful Features</h2>
+    <p className="text-lg text-gray-600 mt-3 mb-12">
+      Everything you need to analyze and understand your financial data in one place
+    </p>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {[
+        { title: "Visual Analytics", description: "Automatically generate charts and graphs from your financial data for better insights", icon: "📊" },
+        { title: "Trend Analysis", description: "Identify patterns and trends in your financial data to make informed decisions", icon: "📈" },
+        { title: "Forecasting", description: "Predict future financial outcomes based on historical data and market trends", icon: "📉" },
+        { title: "Accurate Prediction", description: "Leverage AI-driven models to make precise financial forecasts with high accuracy", icon: "🎯" },        { title: "Secure Data", description: "Your financial data is encrypted and protected with enterprise-grade security", icon: "🔒" },
+        { title: "Instant Insights", description: "Get immediate answers to your financial questions without complex analysis", icon: "⚡" },
+      ].map((feature, index) => (
+        <div 
+          key={index} 
+          className="bg-white shadow-lg rounded-xl p-6 flex flex-col items-center text-center border border-gray-200
+                     transition-all duration-300 transform hover:shadow-xl hover:scale-105 hover:border-blue-400"
+        >
+          <div 
+            className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center mb-4 
+                       transition-all duration-300 hover:bg-blue-500"
+          >
+            <span className="text-white text-2xl">{feature.icon}</span>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="bg-blue-50 p-6 rounded-xl hover:shadow-lg transition duration-300">
-              <div className="bg-blue-100 p-3 rounded-full w-14 h-14 flex items-center justify-center mb-4">
-                <PieChart className="h-8 w-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-bold mb-2 text-gray-900">Visual Analytics</h3>
-              <p className="text-gray-700">
-                Automatically generate charts and graphs from your financial data for better insights
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="bg-blue-50 p-6 rounded-xl hover:shadow-lg transition duration-300">
-              <div className="bg-blue-100 p-3 rounded-full w-14 h-14 flex items-center justify-center mb-4">
-                <LineChart className="h-8 w-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-bold mb-2 text-gray-900">Trend Analysis</h3>
-              <p className="text-gray-700">
-                Identify patterns and trends in your financial data to make informed decisions
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="bg-blue-50 p-6 rounded-xl hover:shadow-lg transition duration-300">
-              <div className="bg-blue-100 p-3 rounded-full w-14 h-14 flex items-center justify-center mb-4">
-                <TrendingUp className="h-8 w-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-bold mb-2 text-gray-900">Forecasting</h3>
-              <p className="text-gray-700">
-                Predict future financial outcomes based on historical data and market trends
-              </p>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="bg-blue-50 p-6 rounded-xl hover:shadow-lg transition duration-300">
-              <div className="bg-blue-100 p-3 rounded-full w-14 h-14 flex items-center justify-center mb-4">
-                <Users className="h-8 w-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-bold mb-2 text-gray-900">Collaboration</h3>
-              <p className="text-gray-700">
-                Share insights with your team and collaborate on financial analysis in real-time
-              </p>
-            </div>
-
-            {/* Feature 5 */}
-            <div className="bg-blue-50 p-6 rounded-xl hover:shadow-lg transition duration-300">
-              <div className="bg-blue-100 p-3 rounded-full w-14 h-14 flex items-center justify-center mb-4">
-                <Shield className="h-8 w-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-bold mb-2 text-gray-900">Secure Data</h3>
-              <p className="text-gray-700">
-                Your financial data is encrypted and protected with enterprise-grade security
-              </p>
-            </div>
-
-            {/* Feature 6 */}
-            <div className="bg-blue-50 p-6 rounded-xl hover:shadow-lg transition duration-300">
-              <div className="bg-blue-100 p-3 rounded-full w-14 h-14 flex items-center justify-center mb-4">
-                <Zap className="h-8 w-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-bold mb-2 text-gray-900">Instant Insights</h3>
-              <p className="text-gray-700">
-                Get immediate answers to your financial questions without complex analysis
-              </p>
-            </div>
-          </div>
+          <h3 className="text-lg font-semibold text-gray-900">{feature.title}</h3>
+          <p className="text-gray-600 mt-2">{feature.description}</p>
         </div>
-      </section>
+      ))}
+    </div>
+  </div>
+</section>
+
+
 
       {/* How It Works Section */}
       <section className="py-16 bg-blue-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4 text-gray-900">How It Works</h2>
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-              Three simple steps to transform your financial data
-            </p>
+  <div className="container mx-auto px-6 text-center">
+    <h2 className="text-4xl font-extrabold text-blue-600">How It Works</h2>
+    <p className="text-lg text-gray-600 mt-3 mb-12">
+      Three simple steps to transform your financial data
+    </p>
+
+    <div className="flex flex-col md:flex-row items-center justify-center space-y-12 md:space-y-0 md:space-x-12">
+      {[
+        { title: "Upload", description: "Simply upload your Excel files or connect to your financial data sources", icon: "📤" },
+        { title: "Analyze", description: "Our AI automatically processes and analyzes your financial data", icon: "🔍" },
+        { title: "Visualize", description: "Get instant visualizations, insights, and answers to your questions", icon: "📊" },
+      ].map((step, index) => (
+        <div key={index} className="flex items-center">
+          {/* Card */}
+          <div 
+            className="bg-white shadow-lg rounded-xl p-8 flex flex-col items-center text-center border border-gray-200
+                      transition-all duration-300 transform hover:shadow-xl hover:scale-105 hover:border-blue-400"
+          >
+            <div 
+              className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center mb-4 
+                        transition-all duration-300 hover:bg-blue-500"
+            >
+              <span className="text-white text-4xl">{step.icon}</span>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900">{step.title}</h3>
+            <p className="text-gray-600 mt-2">{step.description}</p>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="flex flex-col items-center text-center max-w-xs">
-              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                <span className="text-2xl font-bold text-blue-600">1</span>
-              </div>
-              <h3 className="text-xl font-bold mb-2 text-gray-900">Upload</h3>
-              <p className="text-gray-700">Simply upload your Excel files or connect to your financial data sources</p>
-            </div>
-
-            <div className="hidden md:block text-blue-300">
-              <ChevronRight size={48} />
-            </div>
-
-            <div className="flex flex-col items-center text-center max-w-xs">
-              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                <span className="text-2xl font-bold text-blue-600">2</span>
-              </div>
-              <h3 className="text-xl font-bold mb-2 text-gray-900">Analyze</h3>
-              <p className="text-gray-700">Our AI automatically processes and analyzes your financial data</p>
-            </div>
-
-            <div className="hidden md:block text-blue-300">
-              <ChevronRight size={48} />
-            </div>
-
-            <div className="flex flex-col items-center text-center max-w-xs">
-              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                <span className="text-2xl font-bold text-blue-600">3</span>
-              </div>
-              <h3 className="text-xl font-bold mb-2 text-gray-900">Visualize</h3>
-              <p className="text-gray-700">Get instant visualizations, insights, and answers to your questions</p>
-            </div>
-          </div>
+          {/* Greater Than Sign (Only for first two steps) */}
+          {index < 2 && (
+            <div className="mx-6 text-4xl font-bold text-blue-500">›</div>
+          )}
         </div>
-      </section>
+      ))}
+    </div>
+  </div>
+</section>
+
+
 
       {/* CTA Section */}
       <section className="py-16 bg-blue-600 text-white">
