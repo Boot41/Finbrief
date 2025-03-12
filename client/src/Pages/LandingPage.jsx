@@ -78,7 +78,7 @@ const LandingPage = () => {
       {/* Features Section */}
       <section className="py-16 bg-white">
   <div className="container mx-auto px-6 text-center">
-    <h2 className="text-4xl font-extrabold text-blue-600">Powerful Features</h2>
+    <h2 className="text-4xl font-extrabold text-blue-600">From trends to predictions, get instant, AI-driven financial clarity at your fingertips!</h2>
     <p className="text-lg text-gray-600 mt-3 mb-12">
       Everything you need to analyze and understand your financial data in one place
     </p>
@@ -173,7 +173,7 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-white text-black py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between">
             <div className="mb-8 md:mb-0">
@@ -191,22 +191,22 @@ const LandingPage = () => {
                 <h3 className="text-lg font-semibold mb-4">Product</h3>
                 <ul className="space-y-2">
                   <li>
-                    <a href="#" className="text-gray-400 hover:text-white">
+                    <a href="#" className="text-gray-400 hover:text-black">
                       Features
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="text-gray-400 hover:text-white">
+                    <a href="#" className="text-gray-400 hover:text-black">
                       Pricing
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="text-gray-400 hover:text-white">
+                    <a href="#" className="text-gray-400 hover:text-black">
                       Integrations
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="text-gray-400 hover:text-white">
+                    <a href="#" className="text-gray-400 hover:text-black">
                       Enterprise
                     </a>
                   </li>
@@ -217,22 +217,22 @@ const LandingPage = () => {
                 <h3 className="text-lg font-semibold mb-4">Company</h3>
                 <ul className="space-y-2">
                   <li>
-                    <a href="#" className="text-gray-400 hover:text-white">
+                    <a href="#" className="text-gray-400 hover:text-black">
                       About
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="text-gray-400 hover:text-white">
+                    <a href="#" className="text-gray-400 hover:text-black">
                       Blog
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="text-gray-400 hover:text-white">
+                    <a href="#" className="text-gray-400 hover:text-black">
                       Careers
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="text-gray-400 hover:text-white">
+                    <a href="#" className="text-gray-400 hover:text-black">
                       Contact
                     </a>
                   </li>
@@ -243,22 +243,22 @@ const LandingPage = () => {
                 <h3 className="text-lg font-semibold mb-4">Resources</h3>
                 <ul className="space-y-2">
                   <li>
-                    <a href="#" className="text-gray-400 hover:text-white">
+                    <a href="#" className="text-gray-400 hover:text-black">
                       Documentation
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="text-gray-400 hover:text-white">
+                    <a href="#" className="text-gray-400 hover:text-black">
                       Help Center
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="text-gray-400 hover:text-white">
+                    <a href="#" className="text-gray-400 hover:text-black">
                       Tutorials
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="text-gray-400 hover:text-white">
+                    <a href="#" className="text-gray-400 hover:text-black">
                       API
                     </a>
                   </li>

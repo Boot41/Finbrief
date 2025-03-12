@@ -36,6 +36,7 @@ router.post("/signup", async (req, res) => {
 // Login Route
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
+  const trimmedemail = req.body.email.split("@")[0];
 
   try {
     const user = await User.findOne({ email });
@@ -58,6 +59,7 @@ router.post("/login", async (req, res) => {
     res.json({
       message: 'Login successful',
       token,  // Send the token to the client
+      trimmedemail
     });
   } catch (error) {
     res.status(500).json({ message: 'Error logging in', error: error.message });

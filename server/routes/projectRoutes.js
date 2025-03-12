@@ -86,6 +86,7 @@ router.post('/analyze/:id', protect, async (req, res) => {
   }
 });
 
+
 // Get all projects for a user
 router.get('/', protect, async (req, res) => {
   try {

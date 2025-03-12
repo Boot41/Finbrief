@@ -10,6 +10,17 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const navigate = useNavigate()
+  const [menuOpenId, setMenuOpenId] = useState(null);
+  const [username, setUsername] = useState("");
+
+  // for username
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
+
 
   // Handle file selection
   const handleFileChange = (e) => {
@@ -165,11 +176,11 @@ const Dashboard = () => {
       {/* Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700">
         <div className="p-6 border-b border-gray-200 dark:border-slate-700">
-        <Link to="/"> <h1 className="text-2xl font-bold text-indigo-600 dark:text-indigo-300">Finbrief</h1></Link>
+        <Link to="/"> <h1 className="text-2xl font-bold text-blue-600">Finbrief</h1></Link>
         </div>
 
         {/* Example Sidebar Navigation */}
-        <nav className="flex-1 p-6 space-y-2 text-gray-600 dark:text-gray-400">
+    <nav className="flex-1 p-6 space-y-2 text-gray-600 dark:text-gray-400">
   <h2 className="text-sm uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-2">Projects</h2>
   <ul className="space-y-1">
     {projects.slice(0, 5).map((project) => ( // Show first 5 projects
@@ -201,8 +212,8 @@ const Dashboard = () => {
  {/* Logout Button */}
  <div className="mt-auto p-6 border-t border-gray-200 dark:border-slate-700">
     <button
-      onClick={() => navigate("/signup")} // Navigate to the signup page
-      className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+      onClick={() => navigate("/")} // Navigate to the signup page
+      className="flex items-center gap-2 text-red-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -226,20 +237,22 @@ const Dashboard = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         {/* Top Bar */}
-        <header className="flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
+        <header className="flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700"> 
+          <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Dashboard</h1>
+          <span className="text-gray-700 dark:text-gray-300">{username}</span>
         </header>
 
         {/* Main Scrollable Content */}
         <main className="flex-1 overflow-auto px-4 py-6">
           {/* Dashboard Header */}
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100 tracking-tight mb-6">
-            Dashboard
+            Your Projects
           </h1>
 
           {/* Top Cards: Welcome & Quick Tips */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
             {/* Welcome Card (2 columns wide on large screens) */}
-            <div className="bg-indigo-600 text-white rounded-lg p-6 lg:col-span-2">
+            <div className="bg-blue-600 text-white rounded-lg p-6 lg:col-span-2">
               <h2 className="text-2xl font-semibold mb-2">Welcome to Finbrief</h2>
               <p className="mb-4">
                 Analyze Excel file with the power of AI.
@@ -249,7 +262,7 @@ const Dashboard = () => {
                 className="bg-white text-indigo-600 font-medium px-4 py-2 rounded-lg shadow-sm hover:shadow-md"
                 disabled={isLoading}
               >
-                New Excel
+                Add Excel File
               </button>
             </div>
 
@@ -294,9 +307,14 @@ const Dashboard = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M9 13h6m-3-3v6m5 5H7a2 2 0
-                      01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1
-                      1 0 01.293.707V19a2 2 0 01-2 2z"
+                      d="M9 13h6m-3-3v6m3 4v-6m2
+                      10H7a2 2 0
+                      01-2-2V5a2 2 0
+                      012-2h5.586a1 1 0
+                      01.707.293l5.414
+                      5.414a1 1 0
+                      01.293.707V19a2
+                      2 0 01-2 2z"
                     />
                   </svg>
                 </div>
@@ -326,18 +344,47 @@ const Dashboard = () => {
                 >
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
-                        {project.filename}
-                      </h3>
-                      <span
-                        className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${
-                          project.status === "analyzed"
-                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-                        }`}
-                      >
-                        {project.status === "analyzed" ? "Analyzed" : "Pending"}
-                      </span>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
+                          {project.filename}
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${
+                            project.status === "analyzed"
+                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+                          }`}
+                        >
+                          {project.status === "analyzed" ? "Analyzed" : "Pending"}
+                        </span>
+                        <div className="relative">
+                          <button
+                            onClick={() => setMenuOpenId(menuOpenId === project._id ? null : project._id)}
+                            className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                            </svg>
+                          </button>
+                          {menuOpenId === project._id && (
+                            <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-slate-800 ring-1 ring-black ring-opacity-5 z-10">
+                              <div className="py-1">
+                                <button
+                                  onClick={() => {
+                                    handleDelete(project._id);
+                                    setMenuOpenId(null);
+                                  }}
+                                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                                >
+                                  Delete Project
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
 
                     <div className="space-y-2 mb-6">
@@ -354,7 +401,8 @@ const Dashboard = () => {
                             strokeLinejoin="round"
                             strokeWidth={2}
                             d="M9 17v-2m3 2v-4m3 4v-6m2
-                            10H7a2 2 0 01-2-2V5a2 2 0
+                            10H7a2 2 0
+                            01-2-2V5a2 2 0
                             012-2h5.586a1 1 0
                             01.707.293l5.414
                             5.414a1 1 0
@@ -377,9 +425,9 @@ const Dashboard = () => {
                             strokeLinejoin="round"
                             strokeWidth={2}
                             d="M8 7V3m8 4V3m-9
-                            8h10M5 21h14a2 2
-                            0 002-2V7a2 2 0
-                            00-2-2H5a2 2 0
+                            8h10M5 21h14a2 2 0
+                            002-2V7a2 2 0
+                            002-2H5a2 2 0
                             00-2 2v12a2 2 0
                             002 2z"
                           />
@@ -407,7 +455,7 @@ const Dashboard = () => {
                           <>
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4"
+                              className="h-4 w-4 oklch(0.51 0.26 276.94)"
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
@@ -488,34 +536,7 @@ const Dashboard = () => {
                         Ask
                       </Link>
 
-                      <button
-                        onClick={() => handleDelete(project._id)}
-                        className="col-span-2 flex items-center justify-center gap-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white 
-                        rounded-lg font-medium transition-colors duration-300 focus:ring-4 focus:ring-red-300 focus:outline-none"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 7l-.867
-                            12.142A2 2 0
-                            0116.138 21H7.862a2
-                            2 0
-                            01-1.995-1.858L5
-                            7m5 4v6m4-6v6m1-10V4a1
-                            1 0 00-1-1h-4a1 1
-                            0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
-                        Delete
-                      </button>
+              
                     </div>
                   </div>
                 </div>
@@ -576,8 +597,7 @@ const Dashboard = () => {
                           d="M9 17v-2m3 2v-4m3 4v-6m2
                           10H7a2 2 0
                           01-2-2V5a2 2 0
-                          012-2h5.586a1
-                          1 0
+                          012-2h5.586a1 1 0
                           01.707.293l5.414
                           5.414a1 1 0
                           01.293.707V19a2

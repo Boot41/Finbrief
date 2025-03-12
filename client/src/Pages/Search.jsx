@@ -474,25 +474,32 @@ const Search = () => {
 
                {/* Microphone Button */}
                <button
-                type="button"
-                onClick={isListening ? stopListening : startListening}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className={`h-5 w-5 ${isListening ? "text-red-500" : "text-gray-400"}`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0-4H3m15 0h3m-3-7a7 7 0 00-7-7m0 0a7 7 0 00-7 7m7-7v4m0-4h14"
-                  />
-                </svg>
-              </button>
+  type="button"
+  onClick={isListening ? stopListening : startListening}
+  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+>
+  {isListening ? (
+    // Stop (Square) Icon when listening
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-6 w-6 text-red-500"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path d="M6 6h12v12H6z" />
+    </svg>
+  ) : (
+    // Microphone Icon when not listening
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-6 w-6 text-gray-500"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path d="M12 2a4 4 0 00-4 4v6a4 4 0 008 0V6a4 4 0 00-4-4zM5 10v2a7 7 0 0014 0v-2h-2v2a5 5 0 01-10 0v-2H5zm7 10a3 3 0 003-3h-6a3 3 0 003 3zm-3 1h6v2H9v-2z" />
+    </svg>
+  )}
+</button>
 
             </div>
             <button
