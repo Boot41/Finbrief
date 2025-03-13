@@ -33,6 +33,7 @@ router.post('/', protect, upload.single('file'), handleMulterError, async (req, 
   }
 });
 
+
 // Analyze uploaded file using LLM
 router.post('/analyze/:id', protect, async (req, res) => {
   console.log(req.params.id)
@@ -87,6 +88,7 @@ router.post('/analyze/:id', protect, async (req, res) => {
 });
 
 
+
 // Get all projects for a user
 router.get('/', protect, async (req, res) => {
   try {
@@ -110,6 +112,7 @@ router.get('/:id', protect, async (req, res) => {
   }
 });
 
+
 // Update project status
 router.patch('/:id/status', protect, async (req, res) => {
   try {
@@ -130,6 +133,7 @@ router.patch('/:id/status', protect, async (req, res) => {
   }
 });
 
+
 // Update project summary and insights
 router.patch('/:id', protect, async (req, res) => {
   try {
@@ -149,6 +153,7 @@ router.patch('/:id', protect, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 // Delete a project
 router.delete('/:id', protect, async (req, res) => {

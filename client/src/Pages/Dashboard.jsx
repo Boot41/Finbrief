@@ -266,10 +266,10 @@ const Dashboard = () => {
               </button>
             </div>
 
-            {/* Quick Tips Card */}
+            {/* Quick Start Card */}
             <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">
-                Quick Tips
+                Quick Start
               </h2>
               <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-300">
                 <li>Simply upload your Excel files </li>

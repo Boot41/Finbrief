@@ -120,14 +120,14 @@ const LandingPage = () => {
       Three simple steps to transform your financial data
     </p>
 
-    <div className="flex flex-col md:flex-row items-center justify-center space-y-12 md:space-y-0 md:space-x-12">
+    <div className="flex flex-col md:flex-row items-center justify-center space-y-12 md:space-y-0 md:space-x-16">
       {[
         { title: "Upload", description: "Simply upload your Excel files or connect to your financial data sources", icon: "📤" },
         { title: "Analyze", description: "Our AI automatically processes and analyzes your financial data", icon: "🔍" },
         { title: "Visualize", description: "Get instant visualizations, insights, and answers to your questions", icon: "📊" },
       ].map((step, index) => (
         <div key={index} className="flex items-center">
-          {/* Card */}
+          {/* Step Card */}
           <div 
             className="bg-white shadow-lg rounded-xl p-8 flex flex-col items-center text-center border border-gray-200
                       transition-all duration-300 transform hover:shadow-xl hover:scale-105 hover:border-blue-400"
@@ -142,15 +142,19 @@ const LandingPage = () => {
             <p className="text-gray-600 mt-2">{step.description}</p>
           </div>
 
-          {/* Greater Than Sign (Only for first two steps) */}
+          {/* Centered Greater Than Sign (Only for first two steps) */}
           {index < 2 && (
-            <div className="mx-6 text-4xl font-bold text-blue-500">›</div>
+            <div className="w-12 flex items-center justify-center text-6xl font-bold text-blue-500 ml-6 ">
+              ›
+            </div>
           )}
         </div>
       ))}
     </div>
   </div>
 </section>
+
+
 
 
 

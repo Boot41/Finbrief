@@ -32,14 +32,14 @@ const Signup = () => {
     }
   };
 
-  return (<div>
-
-  <header className="sticky top-0 z-50 bg-white shadow-sm">
-  <div className="container mx-auto px-4 py-4">
-    <nav className="flex justify-between items-center">
-      <div className="flex items-center space-x-2 text-blue-600">
-        <BarChart3 size={32} />
-      <button>
+  return (
+    <div>
+        <header className="sticky top-0 z-50 bg-white shadow-sm">
+        <div className="container mx-auto px-4 py-4">
+          <nav className="flex justify-between items-center">
+            <div className="flex items-center space-x-2 text-blue-600">
+              <BarChart3 size={32} />
+              <button>
         <span className="text-2xl font-bold " onClick={() => navigate("/")} >FinBrief</span>
       </button>
       </div>
