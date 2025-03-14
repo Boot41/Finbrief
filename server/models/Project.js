@@ -34,6 +34,14 @@ const ProjectSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.Mixed, // Mixed type to store flexible JSON data
     default: null,
   },
+  forecast: {
+    type : String,
+    default: ''
+  },
+  improvementsuggestions: {
+    type: [String],
+    default: ''
+  },
   futurePredictions: {
     type: mongoose.Schema.Types.Mixed,
     default: null,

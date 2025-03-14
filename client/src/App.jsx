@@ -7,6 +7,7 @@ import ProjectSummary from './Pages/ProjectSummary';
 import Search from './Pages/Search';
 import axios from 'axios';
 import Login from './Pages/Login';
+import Forecast from './Pages/Forecast';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -39,6 +40,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/project/:id" element={<ProjectSummary />} />
             <Route path="/search" element={<Search />} />
+            <Route path='/forecast/:id' element={<Forecast></Forecast>} ></Route>
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </>
         )}

@@ -162,6 +162,63 @@ const Dashboard = () => {
     }
   }
 
+
+  const handleAnalyze2 = async (project) => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      // If project hasn't been analyzed yet, trigger analysis
+      if (project.status !== "analyzed") {
+        const response = await axios.post(
+          `http://localhost:5000/api/projects/analyze/${project._id}`,
+          {},
+          {
+            headers: {
+              token: localStorage.getItem("token"),
+              "Content-Type": "application/json",
+            },
+            timeout: 30000, // 30 second timeout
+          },
+        )
+
+        if (response.data) {
+          // Update the project in the list with the analyzed data
+          const updatedProjects = projects.map((p) => (p._id === project._id ? response.data : p))
+          setProjects(updatedProjects)
+
+          // Navigate to forecast
+          navigate(`/forecast/${project._id}`)
+        } else {
+          throw new Error("No data received from analysis")
+        }
+      } else {
+        // If already analyzed, just navigate
+        navigate(`/forecast/${project._id}`)
+      }
+    } catch (error) {
+      console.error("Analysis error:", error)
+      let errorMessage = "Failed to analyze project. Please try again."
+
+      if (error.code === "ECONNABORTED") {
+        errorMessage = "Analysis timed out. Please try again."
+      } else if (error.response) {
+        // Server responded with error
+        errorMessage = error.response.data.message || errorMessage
+      } else if (error.request) {
+        // Request made but no response
+        errorMessage = "Could not connect to server. Please check your connection."
+      }
+
+      setError(errorMessage)
+      alert(errorMessage)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+
+
   // Format file size
   const formatFileSize = (bytes) => {
     if (bytes === 0) return "0 Bytes"
@@ -536,6 +593,12 @@ const Dashboard = () => {
                         Ask
                       </Link>
 
+                      <button
+                        onClick={() => handleAnalyze2(project)}
+                        className="flex items-center justify-center gap-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white 
+                        rounded-lg font-medium transition-colors duration-300 focus:ring-4 focus:ring-emerald-300 focus:outline-none"
+                      >Forecast
+                      </button>
               
                     </div>
                   </div>

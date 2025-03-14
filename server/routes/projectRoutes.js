@@ -1,7 +1,7 @@
 const express = require('express');
 const Project = require('../models/Project');
 const protect = require('../middleware/authMiddleware'); 
-const { upload, handleMulterError, upload_mul } = require('../utils/multer');
+const { upload, handleMulterError } = require('../utils/multer');
 const { analyzeFinancialData, queryFinancialData } = require('../utils/llm');
 
 const router = express.Router();
@@ -74,7 +74,9 @@ router.post('/analyze/:id', protect, async (req, res) => {
     project.summary = analysisData.Summary;
     project.insights = analysisData.KeyInsights;
     project.chartData = analysisData.ChartData;
+    project.forecast = analysisData.forecast
     project.futurePredictions = analysisData.FuturePredictions;
+    project.improvementsuggestions = analysisData.improvementsuggestions;
     project.status = 'analyzed';
 
     await project.save();
@@ -86,6 +88,7 @@ router.post('/analyze/:id', protect, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 
 
@@ -169,27 +172,27 @@ router.delete('/:id', protect, async (req, res) => {
 });
 
 // Get chart data for a specific project
-router.get('/charts/:id', protect, async (req, res) => {
-  try {
-    const project = await Project.findOne({ _id: req.params.id, userId: req.userId });
+// router.get('/charts/:id', protect, async (req, res) => {
+//   try {
+//     const project = await Project.findOne({ _id: req.params.id, userId: req.userId });
     
-    if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
-    }
+//     if (!project) {
+//       return res.status(404).json({ message: 'Project not found' });
+//     }
 
-    if (!project.summary || !project.insights || !project.chartData) {
-      return res.status(400).json({ message: 'Analysis not completed or chart data not available' });
-    }
+//     if (!project.summary || !project.insights || !project.chartData) {
+//       return res.status(400).json({ message: 'Analysis not completed or chart data not available' });
+//     }
 
-    res.json({
-      summary: project.summary,
-      insights: project.insights,
-      chartData: project.chartData
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+//     res.json({
+//       summary: project.summary,
+//       insights: project.insights,
+//       chartData: project.chartData
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// });
 
 // Get predictions for a specific project
 router.get('/predictions/:id', protect, async (req, res) => {

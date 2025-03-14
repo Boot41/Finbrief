@@ -44,6 +44,9 @@ module.exports.analyzeFinancialData = async (filePath) => {
         Please perform the following:
         - Summarize key financial insights
         - Generate data for charts (e.g., revenue trends, expenses, etc.)
+        - Predict future revenue and expenses for the next 6 months
+        - Provide actionable insights on how to improve financial performance
+        -Give insights and improvementsuggestion pointwise
 
         Here is the raw financial data extracted from an Excel file:
         ${excelText}
@@ -68,6 +71,7 @@ module.exports.analyzeFinancialData = async (filePath) => {
               }]
             }
           },
+           "forecast": "",
           "FuturePredictions": {
             "labels": ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
             "datasets": [{
@@ -77,7 +81,12 @@ module.exports.analyzeFinancialData = async (filePath) => {
               "label": "Predicted Expenses",
               "data": [1700, 1800, 1900, 2000, 2100, 2200]
             }]
-          }
+          },
+          "improvementsuggestions": [
+          "Optimize cost structures by reducing unnecessary expenses.",
+          "Increase revenue streams through diversified income sources.",
+          "Enhance customer retention with better service offerings."
+          ]
         }
     `;
 
@@ -95,6 +104,7 @@ module.exports.queryFinancialData = async (filePath, userQuery) => {
         Act as a financial expert analyzing the given data.
         Answer the user's question based on the financial data provided.
         Provide visualizations that best represent the data for the query.
+
 
         User Question: "${userQuery}"
 
@@ -140,48 +150,41 @@ module.exports.queryFinancialData = async (filePath, userQuery) => {
 };
 
 
-
-module.exports.analyzeMultipleFinancialFiles = async (filePaths) => {
-  let combinedExcelText = "";
-  
-  for (const filePath of filePaths) {
-      const excelText = await inputExcelText(filePath);
-      combinedExcelText += `\nFile: ${filePath}\n${excelText}\n`;
-  }
+/**
+ * Function to generate future financial predictions.
+ */
+module.exports.generateFuturePredictions = async (filePath) => {
+  const excelText = await inputExcelText(filePath);
 
   const inputPrompt = `
       Act as a highly experienced financial analyst. 
-      Your task is to analyze the provided financial data from multiple sources including transactions, audits, debits, credits, and other records.
+      Your task is to generate future financial predictions based on the given data and provide recommendations for improvement.
 
       Please perform the following:
-      - Summarize key financial insights from all files
-      - Compare financial trends across different files
-      - Generate aggregated data for charts (e.g., revenue trends, expenses, etc.)
+      - Predict future revenue and expenses for the next 6 months
+      - Provide actionable insights on how to improve financial performance
 
-      Here is the raw financial data extracted from multiple Excel files:
-      ${combinedExcelText}
+      Here is the raw financial data extracted from an Excel file:
+      ${excelText}
 
       I want the response in valid JSON format with the following structure:
       {
-        "Summary": "",
-        "KeyInsights": [],
-        "ComparativeAnalysis": "",
-        "ChartData": {
-          "OverallExpenses": {
-            "labels": ["File 1", "File 2", "File 3", ...],
-            "datasets": [{
-              "label": "Total Expenses",
-              "data": [1000, 1500, 1200]
-            }]
-          },
-          "RevenueTrends": {
-            "labels": ["Jan", "Feb", "Mar", ...],
-            "datasets": [{
-              "label": "Combined Revenue",
-              "data": [2100, 2300, 2500]
-            }]
-          }
-        }
+    
+        "FuturePredictions": {
+          "labels": ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+          "datasets": [{
+            "label": "Predicted Revenue",
+            "data": [2100, 2300, 2500, 2700, 2900, 3100]
+          }, {
+            "label": "Predicted Expenses",
+            "data": [1700, 1800, 1900, 2000, 2100, 2200]
+          }]
+        },
+        "ImprovementSuggestions": [
+          "Optimize cost structures by reducing unnecessary expenses.",
+          "Increase revenue streams through diversified income sources.",
+          "Enhance customer retention with better service offerings."
+        ]
       }
   `;
 

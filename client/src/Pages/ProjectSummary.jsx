@@ -77,6 +77,7 @@ const ProjectSummary = () => {
     fetchProjectDetails()
   }, [id])
 
+  
   const formatFileSize = (bytes) => {
     if (bytes === 0) return "0 Bytes"
     const k = 1024
@@ -244,6 +245,32 @@ const ProjectSummary = () => {
               </section>
             )}
 
+             {/* Insights Section */}
+             {project?.insights && (
+              <section className="mb-10 bg-slate-50 dark:bg-slate-700/30 rounded-xl p-6 shadow-sm">
+                <h3 className="text-xl font-semibold mb-6 text-slate-800 dark:text-slate-200 flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 mr-2 text-indigo-500 dark:text-indigo-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  Insights
+                </h3>
+                <div className="bg-white dark:bg-slate-700 rounded-lg p-4 shadow-sm">
+                  <div className="text-slate-700 dark:text-slate-300 leading-relaxed">{project.insights}</div>
+                </div>
+              </section>
+            )}
+
             {/* Financial Charts Section */}
             {project?.chartData && (
               <section className="mb-10 bg-slate-50 dark:bg-slate-700/30 rounded-xl p-6 shadow-sm">
@@ -361,84 +388,6 @@ const ProjectSummary = () => {
               </section>
             )}
 
-            {/* Future Predictions Section */}
-            {project?.futurePredictions && (
-              <section className="mb-6 bg-slate-50 dark:bg-slate-700/30 rounded-xl p-6 shadow-sm">
-                <h3 className="text-xl font-semibold mb-4 text-slate-800 dark:text-slate-200 flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 mr-2 text-indigo-500 dark:text-indigo-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                    />
-                  </svg>
-                  Future Predictions
-                </h3>
-                <div className="bg-white dark:bg-slate-700 rounded-lg p-4 shadow-sm">
-                  <Line
-                    data={{
-                      labels: project.futurePredictions.labels,
-                      datasets: project.futurePredictions.datasets.map((dataset, index) => ({
-                        ...dataset,
-                        borderColor: index === 0 ? "#4CAF50" : "#F44336",
-                        backgroundColor: index === 0 ? "rgba(76, 175, 80, 0.2)" : "rgba(244, 67, 54, 0.2)",
-                      })),
-                    }}
-                    options={{
-                      responsive: true,
-                      plugins: {
-                        title: {
-                          display: true,
-                          text: "Future Financial Predictions",
-                          font: {
-                            size: 16,
-                            weight: "bold",
-                          },
-                          color: "#334155", // text-slate-700
-                        },
-                        legend: {
-                          position: "top",
-                          labels: {
-                            color: "#64748b",
-                          },
-                        },
-                      },
-                      scales: {
-                        x: {
-                          grid: {
-                            color: "rgba(203, 213, 225, 0.2)",
-                          },
-                          ticks: {
-                            color: "#64748b",
-                          },
-                        },
-                        y: {
-                          beginAtZero: true,
-                          title: {
-                            display: true,
-                            text: "Amount",
-                            color: "#64748b",
-                          },
-                          grid: {
-                            color: "rgba(203, 213, 225, 0.2)",
-                          },
-                          ticks: {
-                            color: "#64748b",
-                          },
-                        },
-                      },
-                    }}
-                  />
-                </div>
-              </section>
-            )}
           </div>
 
           {/* Footer with Download Button (commented out as example) */}
