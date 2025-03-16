@@ -3,20 +3,24 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const protect = require("../middleware/authMiddleware");
+const { OAuth2Client } = require('google-auth-library');
+
 
 const router = express.Router();
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 
 // Register Route
 router.post("/signup", async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { name, email, password } = req.body;
     
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: "User already exists" });
 
 
     const newUser = new User({
-      username,
+      name,
       email,
       password,
     });
@@ -25,7 +29,7 @@ router.post("/signup", async (req, res) => {
 
     res.status(201).json({
       message: 'User created successfully',
-      user: { id: newUser._id, username: newUser.username, email: newUser.email },
+      user: { id: newUser._id, name: newUser.name, email: newUser.email },
     });
   } catch (error) {
     res.status(500).json({ message: 'Error creating user', error: error.message });
@@ -65,6 +69,48 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ message: 'Error logging in', error: error.message });
   }
 });
+
+
+// google-login
+router.post('/google/callback', async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    // Log the received token to check if it's reaching the backend
+    console.log("Received Token:", token);
+
+    // Verify the Google token
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    console.log("Decoded Token Payload:", payload);
+
+    const { email, name } = payload;
+
+    // Check if user exists in database
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = new User({ name, email, googleAuth: true });
+      await user.save();
+    }
+
+    // Generate JWT for app authentication
+    const appToken = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, {
+      expiresIn: '7d',
+    });
+
+    console.log("Generated App Token:", appToken);
+
+    res.json({ token: appToken, user });
+  } catch (error) {
+    console.error("Google Token Verification Error:", error);
+    res.status(400).json({ error: "Invalid Google token" });
+  }
+});
+
 
 
 

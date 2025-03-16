@@ -6,7 +6,7 @@ import { BarChart3 } from 'lucide-react';
 const Signup = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    username: '',
+    name: '',
     email: '',
     password: '',
   });
@@ -56,15 +56,15 @@ const Signup = () => {
           </div>
         )}
         <form onSubmit={handleSubmit}>
-          {/* Username Field */}
+          {/* name Field */}
           <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-medium mb-2">Username</label>
+            <label className="block text-gray-700 text-sm font-medium mb-2">name</label>
             <input
               type="text"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition duration-300"
-              name="username"
-              placeholder="Enter your username"
-              value={formData.username}
+              name="name"
+              placeholder="Enter your name"
+              value={formData.name}
               onChange={handleChange}
               required
             />
@@ -106,6 +106,7 @@ const Signup = () => {
             Sign Up
           </button>
         </form>
+
 
         {/* Login Link */}
         <p className="mt-6 text-center text-gray-600">

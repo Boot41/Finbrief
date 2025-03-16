@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { BarChart3 } from 'lucide-react';
 import axios from 'axios';
+import { GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from "jwt-decode";
+
 
 const Login = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -25,7 +28,7 @@ const Login = ({ onLogin }) => {
       const response = await axios.post('http://localhost:5000/api/auth/login', formData);
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('username', response.data.trimmedemail); // Store the username
+        localStorage.setItem('name', response.data.trimmedemail); // Store the name
         onLogin();
         navigate('/dashboard');
       }
@@ -94,6 +97,34 @@ const Login = ({ onLogin }) => {
         Login
       </button>
     </form>
+
+
+    <GoogleLogin
+  onSuccess={async (response) => {
+    console.log("Google Response:", response); // Check response in the browser console
+    
+    const credential = response.credential; // This should be the Google ID token
+    console.log("Google Token (credential):", credential); // Log the token before sending
+
+    try {
+      const res = await axios.post('http://localhost:5000/api/auth/google/callback', {
+        token: credential,
+      });
+
+      console.log("Backend Response:", res.data); // Log backend response
+
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('name', res.data.user.email);
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      console.error("Google login failed:", err);
+    }
+  }}
+  onError={() => console.log('Login Failed')}
+/>
+
 
     {/* Signup Link */}
     <p className="mt-6 text-center text-gray-600">
