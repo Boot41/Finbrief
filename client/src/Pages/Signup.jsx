@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { BarChart3 } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
+
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -58,7 +60,7 @@ const Signup = () => {
         <form onSubmit={handleSubmit}>
           {/* name Field */}
           <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-medium mb-2">name</label>
+            <label className="block text-gray-700 text-sm font-medium mb-2">Name</label>
             <input
               type="text"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition duration-300"
@@ -106,6 +108,34 @@ const Signup = () => {
             Sign Up
           </button>
         </form>
+
+
+        <div className="mt-4 flex items-center justify-center">
+            <div className="w-full border-t border-gray-300"></div>
+            <span className="px-4 text-gray-500">OR</span>
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+
+          <div className="mt-4 flex justify-center">
+            <GoogleLogin
+              onSuccess={async (response) => {
+                const credential = response.credential;
+                try {
+                  const res = await axios.post('http://localhost:5000/api/auth/google/callback', {
+                    token: credential,
+                  });
+                  if (res.data.token) {
+                    localStorage.setItem('token', res.data.token);
+                    localStorage.setItem('name', res.data.user.email);
+                    navigate('/dashboard');
+                  }
+                } catch (err) {
+                  console.error("Google login failed:", err);
+                }
+              }}
+              onError={() => console.log('Login Failed')}
+            />
+          </div>
 
 
         {/* Login Link */}

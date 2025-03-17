@@ -71,12 +71,10 @@ router.post("/login", async (req, res) => {
 });
 
 
-// google-login
+// Google Login Route (Callback)
 router.post('/google/callback', async (req, res) => {
   try {
     const { token } = req.body;
-
-    // Log the received token to check if it's reaching the backend
     console.log("Received Token:", token);
 
     // Verify the Google token
@@ -90,20 +88,22 @@ router.post('/google/callback', async (req, res) => {
 
     const { email, name } = payload;
 
-    // Check if user exists in database
+    // Check if user exists in database; if not, create one.
     let user = await User.findOne({ email });
     if (!user) {
       user = new User({ name, email, googleAuth: true });
       await user.save();
     }
 
-    // Generate JWT for app authentication
-    const appToken = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, {
-      expiresIn: '7d',
-    });
+    // Generate a JWT for your app with a payload that matches your auth middleware.
+    // Notice that we are using 'userId' instead of 'id' to be consistent.
+    const appToken = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
 
     console.log("Generated App Token:", appToken);
-
     res.json({ token: appToken, user });
   } catch (error) {
     console.error("Google Token Verification Error:", error);

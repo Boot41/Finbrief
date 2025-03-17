@@ -34,6 +34,7 @@ router.post('/', protect, upload.single('file'), handleMulterError, async (req, 
 });
 
 
+
 // Analyze uploaded file using LLM
 router.post('/analyze/:id', protect, async (req, res) => {
   console.log(req.params.id)
