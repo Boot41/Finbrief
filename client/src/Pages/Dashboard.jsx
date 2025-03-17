@@ -1,78 +1,83 @@
-"use client"
-import { useState, useEffect, useCallback } from "react"
-import axios from "axios"
-import { Link, useNavigate } from "react-router-dom"
+"use client";
+import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import Sidebar from "../components/Sidebar";
+import TopBar from "../components/TopBar";
+import QuickTips from "../components/QuickTips";
+import Spinner from "../components/Spinner";
+import EmptyState from "../components/EmptyState";
+import Modal from "../components/Modal";
 
 const Dashboard = () => {
-  const [projects, setProjects] = useState([])
-  const [modal, setModal] = useState(false)
-  const [file, setFile] = useState(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const navigate = useNavigate()
+  const [projects, setProjects] = useState([]);
+  const [modal, setModal] = useState(false);
+  const [file, setFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
   const [menuOpenId, setMenuOpenId] = useState(null);
-  const [username, setUsername] = useState("");
+  const [name, setname] = useState("");
 
   // for username
   useEffect(() => {
     const storedname = localStorage.getItem("name");
     if (storedname) {
-      setUsername(storedname);
+      setname(storedname);
     }
   }, []);
 
-
   // Handle file selection
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0]
+    const selectedFile = e.target.files[0];
     if (selectedFile) {
       // Check if file is Excel
       const isExcel = [
         "application/vnd.ms-excel",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      ].includes(selectedFile.type)
+      ].includes(selectedFile.type);
 
       if (!isExcel) {
-        alert("Please upload only Excel files (.xls or .xlsx)")
-        e.target.value = null // Reset file input
-        return
+        alert("Please upload only Excel files (.xls or .xlsx)");
+        e.target.value = null; // Reset file input
+        return;
       }
-      setFile(selectedFile)
+      setFile(selectedFile);
     }
-  }
+  };
 
   // Fetch all projects
   const fetchProjects = useCallback(async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const response = await axios.get("http://localhost:5000/api/projects", {
         headers: {
           token: localStorage.getItem("token"),
         },
-      })
-      setProjects(response.data)
+      });
+      setProjects(response.data);
     } catch (error) {
-      console.error("Error fetching projects:", error)
+      console.error("Error fetching projects:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    fetchProjects()
-  }, [fetchProjects])
+    fetchProjects();
+  }, [fetchProjects]);
 
   // Handle file upload
   const handleUpload = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!file) {
-      alert("Please select a file to upload")
-      return
+      alert("Please select a file to upload");
+      return;
     }
 
-    setIsLoading(true)
-    const formData = new FormData()
-    formData.append("file", file)
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("file", file);
 
     try {
       await axios.post("http://localhost:5000/api/projects", formData, {
@@ -80,38 +85,38 @@ const Dashboard = () => {
           "Content-Type": "multipart/form-data",
           token: localStorage.getItem("token"),
         },
-      })
-      fetchProjects()
-      alert("File uploaded successfully")
-      setModal(false)
-      setFile(null)
+      });
+      fetchProjects();
+      alert("File uploaded successfully");
+      setModal(false);
+      setFile(null);
     } catch (error) {
-      console.error("Error uploading file:", error)
-      alert("Failed to upload file")
+      console.error("Error uploading file:", error);
+      alert("Failed to upload file");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Handle project deletion
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:5000/api/projects/${id}`, {
         headers: { token: localStorage.getItem("token") },
-      })
-      fetchProjects()
-      alert("Project deleted successfully")
+      });
+      fetchProjects();
+      alert("Project deleted successfully");
     } catch (error) {
-      console.error("Error deleting project:", error)
-      alert("Failed to delete project")
+      console.error("Error deleting project:", error);
+      alert("Failed to delete project");
     }
-  }
+  };
 
   // Handle file analysis
   const handleAnalyze = async (project) => {
     try {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
       // If project hasn't been analyzed yet, trigger analysis
       if (project.status !== "analyzed") {
@@ -124,49 +129,51 @@ const Dashboard = () => {
               "Content-Type": "application/json",
             },
             timeout: 30000, // 30 second timeout
-          },
-        )
+          }
+        );
 
         if (response.data) {
           // Update the project in the list with the analyzed data
-          const updatedProjects = projects.map((p) => (p._id === project._id ? response.data : p))
-          setProjects(updatedProjects)
+          const updatedProjects = projects.map((p) =>
+            p._id === project._id ? response.data : p
+          );
+          setProjects(updatedProjects);
 
           // Navigate to project summary
-          navigate(`/project/${project._id}`)
+          navigate(`/project/${project._id}`);
         } else {
-          throw new Error("No data received from analysis")
+          throw new Error("No data received from analysis");
         }
       } else {
         // If already analyzed, just navigate
-        navigate(`/project/${project._id}`)
+        navigate(`/project/${project._id}`);
       }
     } catch (error) {
-      console.error("Analysis error:", error)
-      let errorMessage = "Failed to analyze project. Please try again."
+      console.error("Analysis error:", error);
+      let errorMessage = "Failed to analyze project. Please try again.";
 
       if (error.code === "ECONNABORTED") {
-        errorMessage = "Analysis timed out. Please try again."
+        errorMessage = "Analysis timed out. Please try again.";
       } else if (error.response) {
         // Server responded with error
-        errorMessage = error.response.data.message || errorMessage
+        errorMessage = error.response.data.message || errorMessage;
       } else if (error.request) {
         // Request made but no response
-        errorMessage = "Could not connect to server. Please check your connection."
+        errorMessage =
+          "Could not connect to server. Please check your connection.";
       }
 
-      setError(errorMessage)
-      alert(errorMessage)
+      setError(errorMessage);
+      alert(errorMessage);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-
+  };
 
   const handleAnalyze2 = async (project) => {
     try {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
       // If project hasn't been analyzed yet, trigger analysis
       if (project.status !== "analyzed") {
@@ -179,125 +186,66 @@ const Dashboard = () => {
               "Content-Type": "application/json",
             },
             timeout: 30000, // 30 second timeout
-          },
-        )
+          }
+        );
 
         if (response.data) {
           // Update the project in the list with the analyzed data
-          const updatedProjects = projects.map((p) => (p._id === project._id ? response.data : p))
-          setProjects(updatedProjects)
+          const updatedProjects = projects.map((p) =>
+            p._id === project._id ? response.data : p
+          );
+          setProjects(updatedProjects);
 
           // Navigate to forecast
-          navigate(`/forecast/${project._id}`)
+          navigate(`/forecast/${project._id}`);
         } else {
-          throw new Error("No data received from analysis")
+          throw new Error("No data received from analysis");
         }
       } else {
         // If already analyzed, just navigate
-        navigate(`/forecast/${project._id}`)
+        navigate(`/forecast/${project._id}`);
       }
     } catch (error) {
-      console.error("Analysis error:", error)
-      let errorMessage = "Failed to analyze project. Please try again."
+      console.error("Analysis error:", error);
+      let errorMessage = "Failed to analyze project. Please try again.";
 
       if (error.code === "ECONNABORTED") {
-        errorMessage = "Analysis timed out. Please try again."
+        errorMessage = "Analysis timed out. Please try again.";
       } else if (error.response) {
         // Server responded with error
-        errorMessage = error.response.data.message || errorMessage
+        errorMessage = error.response.data.message || errorMessage;
       } else if (error.request) {
         // Request made but no response
-        errorMessage = "Could not connect to server. Please check your connection."
+        errorMessage =
+          "Could not connect to server. Please check your connection.";
       }
 
-      setError(errorMessage)
-      alert(errorMessage)
+      setError(errorMessage);
+      alert(errorMessage);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-
-
+  };
 
   // Format file size
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return "0 Bytes"
-    const k = 1024
-    const sizes = ["Bytes", "KB", "MB", "GB"]
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
-  }
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return (
+      Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+    );
+  };
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-slate-900">
       {/* Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700">
-        <div className="p-6 border-b border-gray-200 dark:border-slate-700">
-        <Link to="/"> <h1 className="text-2xl font-bold text-blue-600">Finbrief</h1></Link>
-        </div>
-
-        {/* Example Sidebar Navigation */}
-    <nav className="flex-1 p-6 space-y-2 text-gray-600 dark:text-gray-400">
-  <h2 className="text-sm uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-2">Projects</h2>
-  <ul className="space-y-1">
-    {projects.slice(0, 5).map((project) => ( // Show first 5 projects
-      <li key={project._id}>
-        <Link
-          to={`/project/${project._id}`}
-          className="block px-2 py-2 rounded hover:bg-gray-100 dark:hover:bg-slate-700 transition truncate"
-          title={project.filename}
-        >
-          {project.filename}
-        </Link>
-      </li>
-    ))}
-    {projects.length === 0 && (
-      <li className="text-sm text-gray-500 dark:text-gray-400 italic">
-        No projects yet
-      </li>
-    )}
-    {projects.length > 5 && (
-      <li className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">
-        <Link to="#" className="block px-2 py-2">
-          View all projects ({projects.length})
-        </Link>
-      </li>
-    )}
-  </ul>
-</nav>
-
- {/* Logout Button */}
- <div className="mt-auto p-6 border-t border-gray-200 dark:border-slate-700">
-    <button
-      onClick={() => navigate("/")} // Navigate to the signup page
-      className="flex items-center gap-2 text-red-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-6 w-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-        />
-      </svg>
-      <span>Logout</span>
-    </button>
-  </div>
-      </aside>
-
+      <Sidebar projects={projects}></Sidebar>
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         {/* Top Bar */}
-        <header className="flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700"> 
-          <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Dashboard</h1>
-          <span className="text-gray-700 dark:text-gray-300">{name}</span>
-        </header>
+        <TopBar name={name}></TopBar>
 
         {/* Main Scrollable Content */}
         <main className="flex-1 overflow-auto px-4 py-6">
@@ -307,34 +255,7 @@ const Dashboard = () => {
           </h1>
 
           {/* Top Cards: Welcome & Quick Tips */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-            {/* Welcome Card (2 columns wide on large screens) */}
-            <div className="bg-blue-600 text-white rounded-lg p-6 lg:col-span-2">
-              <h2 className="text-2xl font-semibold mb-2">Welcome to Finbrief</h2>
-              <p className="mb-4">
-                Analyze Excel file with the power of AI.
-              </p>
-              <button
-                onClick={() => setModal(true)}
-                className="bg-white text-indigo-600 font-medium px-4 py-2 rounded-lg shadow-sm hover:shadow-md"
-                disabled={isLoading}
-              >
-                Add Excel File
-              </button>
-            </div>
-
-            {/* Quick Start Card */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">
-                Quick Start
-              </h2>
-              <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-300">
-                <li>Simply upload your Excel files </li>
-                <li>Our AI automatically processes and analyzes your financial data</li>
-                <li>Get instant visualizations, insights, and answers to your questions</li>
-              </ul>
-            </div>
-          </div>
+          <QuickTips setModal={setModal} isLoading={isLoading}></QuickTips>
 
           {/* Recent Projects */}
           <section>
@@ -343,53 +264,10 @@ const Dashboard = () => {
             </h2>
 
             {/* Loading Spinner */}
-            {isLoading && (
-              <div className="flex justify-center my-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-              </div>
-            )}
+            <Spinner isLoading={isLoading}></Spinner>
 
             {/* Empty State */}
-            {!isLoading && projects.length === 0 && (
-              <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-8 text-center">
-                <div className="mx-auto w-16 h-16 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mb-4">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8 text-indigo-600 dark:text-indigo-300"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 13h6m-3-3v6m3 4v-6m2
-                      10H7a2 2 0
-                      01-2-2V5a2 2 0
-                      012-2h5.586a1 1 0
-                      01.707.293l5.414
-                      5.414a1 1 0
-                      01.293.707V19a2
-                      2 0 01-2 2z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                  No projects yet
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  Upload your first Excel file to get started
-                </p>
-                <button
-                  onClick={() => setModal(true)}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg px-6 py-2 
-                  transition-colors duration-300 focus:ring-4 focus:ring-indigo-300 focus:outline-none"
-                >
-                  Upload Excel File
-                </button>
-              </div>
-            )}
+            <EmptyState isLoading={isLoading} projects={projects}></EmptyState>
 
             {/* Project Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -414,14 +292,25 @@ const Dashboard = () => {
                               : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
                           }`}
                         >
-                          {project.status === "analyzed" ? "Analyzed" : "Pending"}
+                          {project.status === "analyzed"
+                            ? "Analyzed"
+                            : "Pending"}
                         </span>
                         <div className="relative">
                           <button
-                            onClick={() => setMenuOpenId(menuOpenId === project._id ? null : project._id)}
+                            onClick={() =>
+                              setMenuOpenId(
+                                menuOpenId === project._id ? null : project._id
+                              )
+                            }
                             className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
                               <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                             </svg>
                           </button>
@@ -489,11 +378,14 @@ const Dashboard = () => {
                             002 2z"
                           />
                         </svg>
-                        {new Date(project.uploadedAt).toLocaleDateString(undefined, {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
+                        {new Date(project.uploadedAt).toLocaleDateString(
+                          undefined,
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )}
                       </div>
                     </div>
 
@@ -595,11 +487,40 @@ const Dashboard = () => {
 
                       <button
                         onClick={() => handleAnalyze2(project)}
-                        className="flex items-center justify-center gap-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white 
-                        rounded-lg font-medium transition-colors duration-300 focus:ring-4 focus:ring-emerald-300 focus:outline-none"
-                      >Forecast
+                        className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white 
+  rounded-lg font-medium transition-colors duration-300 focus:ring-4 focus:ring-emerald-300 focus:outline-none"
+                      >
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <rect
+                            x="3"
+                            y="10"
+                            width="4"
+                            height="10"
+                            fill="white"
+                          />
+                          <rect
+                            x="9"
+                            y="6"
+                            width="4"
+                            height="14"
+                            fill="white"
+                          />
+                          <rect
+                            x="15"
+                            y="3"
+                            width="4"
+                            height="17"
+                            fill="white"
+                          />
+                        </svg>
+                        Prediction Analysis
                       </button>
-              
                     </div>
                   </div>
                 </div>
@@ -610,142 +531,18 @@ const Dashboard = () => {
       </div>
 
       {/* Upload Modal */}
-      {modal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-md w-full transform transition-all duration-300 animate-fadeIn">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Upload Excel File</h2>
-                <button
-                  onClick={() => {
-                    setModal(false)
-                    setFile(null)
-                  }}
-                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <form onSubmit={handleUpload} className="space-y-6">
-                <div
-                  className={`flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg transition-colors
-                  ${
-                    file
-                      ? "border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-900/20"
-                      : "border-indigo-300 bg-indigo-50 dark:border-indigo-700 dark:bg-indigo-900/20"
-                  }`}
-                >
-                  {!file ? (
-                    <>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-12 w-12 text-indigo-500 dark:text-indigo-400 mb-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 17v-2m3 2v-4m3 4v-6m2
-                          10H7a2 2 0
-                          01-2-2V5a2 2 0
-                          012-2h5.586a1 1 0
-                          01.707.293l5.414
-                          5.414a1 1 0
-                          01.293.707V19a2
-                          2 0 01-2 2z"
-                        />
-                      </svg>
-                      <p className="mb-4 text-sm text-gray-700 dark:text-gray-300">
-                        Upload an Excel file (.xls or .xlsx)
-                      </p>
-                      <label
-                        htmlFor="file"
-                        className="cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg
-                        transition-colors duration-300 focus:ring-4 focus:ring-indigo-300 focus:outline-none"
-                      >
-                        Browse Files
-                      </label>
-                    </>
-                  ) : (
-                    <>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-12 w-12 text-green-500 dark:text-green-400 mb-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12l2 2 4-4m6
-                          2a9 9 0
-                          11-18 0 9 9 0
-                          0118 0z"
-                        />
-                      </svg>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">{file.name}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        Size: {formatFileSize(file.size)}
-                      </p>
-                      <div className="flex gap-3">
-                        <button
-                          type="submit"
-                          className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-lg
-                          transition-colors duration-300 focus:ring-4 focus:ring-green-300 focus:outline-none"
-                          disabled={isLoading}
-                        >
-                          {isLoading ? "Uploading..." : "Upload File"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setFile(null)}
-                          className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 
-                          font-medium py-2 px-6 rounded-lg transition-colors duration-300 focus:ring-4 focus:ring-gray-300 focus:outline-none"
-                        >
-                          Change
-                        </button>
-                      </div>
-                    </>
-                  )}
-                  <input id="file" type="file" accept=".xls,.xlsx" onChange={handleFileChange} className="hidden" />
-                </div>
-
-                {!file && (
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setModal(false)
-                        setFile(null)
-                      }}
-                      className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 
-                      font-medium transition-colors duration-300 focus:outline-none"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                )}
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        modal={modal}
+        setModal={setModal}
+        file={file}
+        setFile={setFile}
+        isLoading={isLoading}
+        handleUpload={handleUpload}
+        handleFileChange={handleFileChange}
+        formatFileSize={formatFileSize}
+      ></Modal>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;

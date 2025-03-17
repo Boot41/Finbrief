@@ -71,8 +71,10 @@ router.post("/login", async (req, res) => {
 });
 
 
+
 // Google Login Route (Callback)
 router.post('/google/callback', async (req, res) => {
+
   try {
     const { token } = req.body;
     console.log("Received Token:", token);
@@ -87,6 +89,8 @@ router.post('/google/callback', async (req, res) => {
     console.log("Decoded Token Payload:", payload);
 
     const { email, name } = payload;
+    let trimmedemail = payload.email.split("@")[0];
+
 
     // Check if user exists in database; if not, create one.
     let user = await User.findOne({ email });
@@ -104,13 +108,16 @@ router.post('/google/callback', async (req, res) => {
     );
 
     console.log("Generated App Token:", appToken);
-    res.json({ token: appToken, user });
+    res.json({ 
+      token: appToken, 
+      user ,
+     trimmedemail 
+ });
   } catch (error) {
     console.error("Google Token Verification Error:", error);
     res.status(400).json({ error: "Invalid Google token" });
   }
 });
-
 
 
 

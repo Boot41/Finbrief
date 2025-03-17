@@ -53,7 +53,30 @@ const ProjectSchema = new mongoose.Schema({
   filePath: {
     type: String,
     required: true
+  },
+  // New field to store multiple file details
+  files: {
+    type: [{
+      filename: {
+        type: String,
+        required: true
+      },
+      mimeType: {
+        type: String,
+        required: true
+      },
+      size: {
+        type: Number,
+        required: true
+      },
+      filePath: {
+        type: String,
+        required: true
+      }
+    }],
+    default: []
   }
+ 
 });
 
 module.exports = mongoose.model('Project', ProjectSchema);

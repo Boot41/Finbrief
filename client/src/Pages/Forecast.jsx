@@ -1,9 +1,9 @@
-"use client"
-import { ArrowRight , ArrowLeft } from "lucide-react";
-import { useState, useEffect, useRef } from "react"
-import { useParams, useNavigate, Link } from "react-router-dom"
-import axios from "axios"
-import { Line } from "react-chartjs-2"
+"use client";
+import { ArrowRight, ArrowLeft } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import axios from "axios";
+import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,55 +13,63 @@ import {
   Title,
   Tooltip,
   Legend,
-} from "chart.js"
-import jsPDF from "jspdf"
+} from "chart.js";
 
 // Register ChartJS components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Forecast = () => {
-  const [project, setProject] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const { id } = useParams()
-  const navigate = useNavigate()
+  const [project, setProject] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { id } = useParams();
+  const navigate = useNavigate();
 
- 
   useEffect(() => {
     const fetchProjectDetails = async () => {
       try {
-        setIsLoading(true)
-        const response = await axios.get(`http://localhost:5000/api/projects/${id}`, {
-          headers: { token: localStorage.getItem("token") },
-        })
+        setIsLoading(true);
+        const response = await axios.get(
+          `http://localhost:5000/api/projects/${id}`,
+          {
+            headers: { token: localStorage.getItem("token") },
+          }
+        );
 
         if (!response.data) {
-          setError("Project not found")
-          return
+          setError("Project not found");
+          return;
         }
-        setProject(response.data)
+        setProject(response.data);
       } catch (err) {
-        setError(err.response?.data?.error || "Failed to load project details")
+        setError(err.response?.data?.error || "Failed to load project details");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchProjectDetails()
-  }, [id])
-
-  
-
+    fetchProjectDetails();
+  }, [id]);
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-900 dark:to-indigo-950">
         <div className="flex flex-col items-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-300 font-medium">Loading project details...</p>
+          <p className="text-slate-600 dark:text-slate-300 font-medium">
+            Loading project details...
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -86,7 +94,10 @@ const Forecast = () => {
             <strong className="font-semibold text-lg">Error</strong>
           </div>
           <p className="mb-4">{error}</p>
-          <Link to="/dashboard" className="mr-3 text-indigo-600 hover:text-indigo-800 inline-flex items-center">
+          <Link
+            to="/dashboard"
+            className="mr-3 text-indigo-600 hover:text-indigo-800 inline-flex items-center"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6 mr-1"
@@ -94,13 +105,18 @@ const Forecast = () => {
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
             Go to Dashboard
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -125,15 +141,13 @@ const Forecast = () => {
               onClick={() => navigate(`/search/?projectId=${id}`)}
               className="inline-flex items-center px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white font-medium rounded-lg transition-colors duration-300 focus:ring-4 focus:ring-pink-300 focus:outline-none"
             >
-          <ArrowRight className="h-5 w-5 mr-2" />
+              <ArrowRight className="h-5 w-5 mr-2" />
               Search Page
             </button>
           </div>
 
           {/* Content to be printed */}
           <div className="p-6 md:p-8 bg-white dark:bg-slate-800">
-
-
             {project.forecast && (
               <section className="mb-10 bg-slate-50 dark:bg-slate-700/30 rounded-xl p-6 shadow-sm">
                 <h3 className="text-xl font-semibold mb-4 text-slate-800 dark:text-slate-200 flex items-center">
@@ -154,7 +168,9 @@ const Forecast = () => {
                   Forecast
                 </h3>
                 <div className="bg-white dark:bg-slate-700 rounded-lg p-4 shadow-sm">
-                  <p className="text-slate-700 dark:text-slate-300 leading-relaxed">{project.forecast}</p>
+                  <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+                    {project.forecast}
+                  </p>
                 </div>
               </section>
             )}
@@ -180,12 +196,12 @@ const Forecast = () => {
                   Improvement Suggestions
                 </h3>
                 <div className="bg-white dark:bg-slate-700 rounded-lg p-4 shadow-sm">
-                  <div className="text-slate-700 dark:text-slate-300 leading-relaxed">{project.improvementsuggestions}</div>
+                  <div className="text-slate-700 dark:text-slate-300 leading-relaxed">
+                    {project.improvementsuggestions}
+                  </div>
                 </div>
               </section>
             )}
-
-           
 
             {/* Future Predictions Section */}
             {project?.futurePredictions && (
@@ -211,11 +227,16 @@ const Forecast = () => {
                   <Line
                     data={{
                       labels: project.futurePredictions.labels,
-                      datasets: project.futurePredictions.datasets.map((dataset, index) => ({
-                        ...dataset,
-                        borderColor: index === 0 ? "#4CAF50" : "#F44336",
-                        backgroundColor: index === 0 ? "rgba(76, 175, 80, 0.2)" : "rgba(244, 67, 54, 0.2)",
-                      })),
+                      datasets: project.futurePredictions.datasets.map(
+                        (dataset, index) => ({
+                          ...dataset,
+                          borderColor: index === 0 ? "#4CAF50" : "#F44336",
+                          backgroundColor:
+                            index === 0
+                              ? "rgba(76, 175, 80, 0.2)"
+                              : "rgba(244, 67, 54, 0.2)",
+                        })
+                      ),
                     }}
                     options={{
                       responsive: true,
@@ -265,15 +286,11 @@ const Forecast = () => {
                 </div>
               </section>
             )}
-
-
           </div>
-
-          
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Forecast
+export default Forecast;

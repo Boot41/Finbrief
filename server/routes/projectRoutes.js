@@ -6,6 +6,7 @@ const { analyzeFinancialData, queryFinancialData } = require('../utils/llm');
 
 const router = express.Router();
 
+
 // Upload a new project file
 router.post('/', protect, upload.single('file'), handleMulterError, async (req, res) => {
   const file = req.file;
@@ -91,8 +92,6 @@ router.post('/analyze/:id', protect, async (req, res) => {
 });
 
 
-
-
 // Get all projects for a user
 router.get('/', protect, async (req, res) => {
   try {
@@ -102,6 +101,8 @@ router.get('/', protect, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+
 
 // Get a specific project
 router.get('/:id', protect, async (req, res) => {
@@ -172,49 +173,7 @@ router.delete('/:id', protect, async (req, res) => {
   }
 });
 
-// Get chart data for a specific project
-// router.get('/charts/:id', protect, async (req, res) => {
-//   try {
-//     const project = await Project.findOne({ _id: req.params.id, userId: req.userId });
-    
-//     if (!project) {
-//       return res.status(404).json({ message: 'Project not found' });
-//     }
 
-//     if (!project.summary || !project.insights || !project.chartData) {
-//       return res.status(400).json({ message: 'Analysis not completed or chart data not available' });
-//     }
-
-//     res.json({
-//       summary: project.summary,
-//       insights: project.insights,
-//       chartData: project.chartData
-//     });
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// });
-
-// Get predictions for a specific project
-router.get('/predictions/:id', protect, async (req, res) => {
-  try {
-    const project = await Project.findOne({ _id: req.params.id, userId: req.userId });
-    
-    if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
-    }
-
-    if (!project.futurePredictions) {
-      return res.status(400).json({ message: 'Predictions not available yet' });
-    }
-
-    res.json({
-      futurePredictions: project.futurePredictions
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
 
 // Search within a project
 router.get('/search/:id', protect, async (req, res) => {
@@ -252,5 +211,7 @@ router.get('/search/:id', protect, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+
 
 module.exports = router;

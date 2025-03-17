@@ -150,44 +150,65 @@ module.exports.queryFinancialData = async (filePath, userQuery) => {
 };
 
 
-/**
- * Function to generate future financial predictions.
- */
-module.exports.generateFuturePredictions = async (filePath) => {
-  const excelText = await inputExcelText(filePath);
+module.exports.analyzeMultipleFinancialData = async (filePaths) => {
+  // Read all Excel files concurrently and combine their text
+  const excelTexts = await Promise.all(filePaths.map(filePath => inputExcelText(filePath)));
+  const combinedExcelText = excelTexts.join("\n\n");
 
   const inputPrompt = `
-      Act as a highly experienced financial analyst. 
-      Your task is to generate future financial predictions based on the given data and provide recommendations for improvement.
+        Act as a highly experienced financial analyst. 
+        Your task is to analyze the provided financial data including transactions, audits, debits, credits, and other records.
 
-      Please perform the following:
-      - Predict future revenue and expenses for the next 6 months
-      - Provide actionable insights on how to improve financial performance
+        Please perform the following:
+        - Summarize key financial insights
+        - Generate data for charts (e.g., revenue trends, expenses, etc.)
+        - Predict future revenue and expenses for the next 6 months
+        - Provide actionable insights on how to improve financial performance
+        - Give insights and improvement suggestion pointwise
 
-      Here is the raw financial data extracted from an Excel file:
-      ${excelText}
+        Here is the raw financial data extracted from Excel files:
+        ${combinedExcelText}
 
-      I want the response in valid JSON format with the following structure:
-      {
-    
-        "FuturePredictions": {
-          "labels": ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-          "datasets": [{
-            "label": "Predicted Revenue",
-            "data": [2100, 2300, 2500, 2700, 2900, 3100]
-          }, {
-            "label": "Predicted Expenses",
-            "data": [1700, 1800, 1900, 2000, 2100, 2200]
-          }]
-        },
-        "ImprovementSuggestions": [
-          "Optimize cost structures by reducing unnecessary expenses.",
-          "Increase revenue streams through diversified income sources.",
-          "Enhance customer retention with better service offerings."
-        ]
-      }
+        I want the response in valid JSON format with the following structure:
+        {
+          "Summary": "",
+          "KeyInsights": [],
+          "ChartData": {
+            "ExpensesByCategory": {
+              "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+              "datasets": [{
+                "label": "Expenses",
+                "data": [800, 900, 850, 950, 1000, 900]
+              }]
+            },
+            "TotalExpenses": {
+              "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+              "datasets": [{
+                "label": "Expenses",
+                "data": [1000, 1500, 1200, 1800, 2000, 1700]
+              }]
+            }
+          },
+          "forecast": "",
+          "FuturePredictions": {
+            "labels": ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            "datasets": [{
+              "label": "Predicted Revenue",
+              "data": [2100, 2300, 2500, 2700, 2900, 3100]
+            }, {
+              "label": "Predicted Expenses",
+              "data": [1700, 1800, 1900, 2000, 2100, 2200]
+            }]
+          },
+          "improvementsuggestions": [
+            "Optimize cost structures by reducing unnecessary expenses.",
+            "Increase revenue streams through diversified income sources.",
+            "Enhance customer retention with better service offerings."
+          ]
+        }
   `;
 
   const responseText = await generateContent(inputPrompt);
   return responseText;
 };
+
