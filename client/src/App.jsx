@@ -13,6 +13,7 @@ import Search from "./Pages/Search";
 import Login from "./Pages/Login";
 import Forecast from "./Pages/Forecast";
 import AuthContext from "./context/AuthContext";
+import Compare from "./Pages/Compare";
 
 function App() {
   const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext); // Fix: Use authentication context
@@ -34,6 +35,7 @@ function App() {
             <Route path="/project/:id" element={<ProjectSummary />} />
             <Route path="/search" element={<Search />} />
             <Route path="/forecast/:id" element={<Forecast />} />
+            <Route path="/compare" element={<Compare />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </>
         ) : (

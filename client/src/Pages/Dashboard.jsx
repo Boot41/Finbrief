@@ -18,6 +18,12 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [menuOpenId, setMenuOpenId] = useState(null);
   const [name, setname] = useState("");
+  // Additional state to track selected projects for comparison
+  const [selectedProjects, setSelectedProjects] = useState([]);
+ const [comparisonResult, setComparisonResult] = useState(null);
+ const [isComparing, setIsComparing] = useState(false);
+
+
 
   // for username
   useEffect(() => {
@@ -227,6 +233,70 @@ const Dashboard = () => {
     }
   };
 
+ // Handle project selection with max limit
+const handleSelectProject = (projectId) => {
+  setSelectedProjects((prevSelected) => {
+    if (prevSelected.includes(projectId)) {
+      return prevSelected.filter((id) => id !== projectId);
+    }
+    return prevSelected.length < 5 // Limit to 5 projects for better comparison
+      ? [...prevSelected, projectId]
+      : prevSelected;
+  });
+};
+
+// Handle comparison with proper error states
+const handleCompare = async () => {
+  if (selectedProjects.length < 2 || selectedProjects.length > 5) {
+    alert("Please select 2-5 projects to compare");
+    return;
+  }
+
+  try {
+    setIsComparing(true); // Start loading
+    const response = await axios.get(
+      `http://localhost:5000/api/compare?projectIds=${selectedProjects.join(",")}`,
+      {
+        headers: {
+          token: localStorage.getItem("token"),
+        },
+      }
+    );
+
+    if (response.data.success) {
+      const { analysis, charts, bestPerformingCompany, id } = response.data.data;
+      
+      setComparisonResult({
+        analysisId: id,
+        insights: analysis,
+        visualizations: charts,
+        topPerformer: bestPerformingCompany
+      });
+
+      navigate("/compare", {
+        state: {
+          analysisData: analysis,
+          chartData: charts,
+          bestCompany: bestPerformingCompany,
+          analysisId: id
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Comparison error:", error);
+    
+    const errorMessage = error.response?.data?.message || 
+      (error.message.includes("AI analysis")
+        ? "Analysis failed - please try different projects"
+        : "Comparison service unavailable");
+
+    alert(`Comparison failed: ${errorMessage}`);
+  }finally {
+    setIsComparing(false); // Stop loading regardless of success/error
+  }
+};
+
+
   // Format file size
   const formatFileSize = (bytes) => {
     if (bytes === 0) return "0 Bytes";
@@ -257,6 +327,47 @@ const Dashboard = () => {
           {/* Top Cards: Welcome & Quick Tips */}
           <QuickTips setModal={setModal} isLoading={isLoading}></QuickTips>
 
+          {/* Additional: Compare Selected Files Button */}
+          <div className="mb-4">
+  <button
+    onClick={handleCompare}
+    disabled={selectedProjects.length === 0 || isComparing}
+    className={`px-4 py-2 rounded-lg font-medium text-white transition-colors duration-300 focus:outline-none flex items-center justify-center gap-2 ${
+      selectedProjects.length === 0 || isComparing
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-300"
+    }`}
+  >
+    {isComparing ? (
+      <>
+        <svg
+          className="animate-spin h-5 w-5 text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        Comparing...
+      </>
+    ) : (
+      "Compare Selected Files"
+    )}
+  </button>
+</div>
+
           {/* Recent Projects */}
           <section>
             <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
@@ -278,12 +389,20 @@ const Dashboard = () => {
                   hover:shadow-lg hover:-translate-y-1 border border-gray-100 dark:border-slate-700"
                 >
                   <div className="p-6">
+                    {/* Additional: Checkbox for selecting project */}
+                    <div className="flex items-center mb-2">
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={selectedProjects.includes(project._id)}
+                        onChange={() => handleSelectProject(project._id)}
+                      />
+                      <span className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
+                        {project.filename}
+                      </span>
+                    </div>
                     <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
-                          {project.filename}
-                        </h3>
-                      </div>
+                      <div className="flex-1"></div>
                       <div className="flex items-center gap-2">
                         <span
                           className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${
@@ -346,14 +465,7 @@ const Dashboard = () => {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M9 17v-2m3 2v-4m3 4v-6m2
-                            10H7a2 2 0
-                            01-2-2V5a2 2 0
-                            012-2h5.586a1 1 0
-                            01.707.293l5.414
-                            5.414a1 1 0
-                            01.293.707V19a2
-                            2 0 01-2 2z"
+                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                           />
                         </svg>
                         {formatFileSize(project.size)}
@@ -370,22 +482,14 @@ const Dashboard = () => {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M8 7V3m8 4V3m-9
-                            8h10M5 21h14a2 2 0
-                            002-2V7a2 2 0
-                            002-2H5a2 2 0
-                            00-2 2v12a2 2 0
-                            002 2z"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 002-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                           />
                         </svg>
-                        {new Date(project.uploadedAt).toLocaleDateString(
-                          undefined,
-                          {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          }
-                        )}
+                        {new Date(project.uploadedAt).toLocaleDateString(undefined, {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
                       </div>
                     </div>
 
@@ -413,21 +517,13 @@ const Dashboard = () => {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth={2}
-                                d="M15 12a3 3 0
-                                11-6 0 3 3 0
-                                016 0z"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                               />
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth={2}
-                                d="M2.458 12C3.732
-                                7.943 7.523 5 12
-                                5c4.478 0 8.268
-                                2.943 9.542
-                                7-1.274 4.057-5.064
-                                7-9.542 7-4.477
-                                0-8.268-2.943-9.542-7z"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                               />
                             </svg>
                             View
@@ -445,15 +541,7 @@ const Dashboard = () => {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth={2}
-                                d="M9 5H7a2 2 0
-                                00-2 2v12a2 2 0
-                                002 2h10a2 2 0
-                                002-2V7a2 2 0
-                                00-2-2h-2M9 5a2
-                                2 0 002 2h2a2
-                                2 0 002-2M9
-                                5a2 2 0 012-2h2a2
-                                2 0 012 2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                               />
                             </svg>
                             Analyze
@@ -477,9 +565,7 @@ const Dashboard = () => {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M21 21l-6-6m2-5a7
-                            7 0 11-14 0 7 7 0
-                            0114 0z"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                           />
                         </svg>
                         Ask
