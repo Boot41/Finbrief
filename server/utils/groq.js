@@ -56,61 +56,69 @@ module.exports.analyzeFinancialData = async (filePath) => {
   const excelText = await inputExcelText(filePath);
 
   const inputPrompt = `
-        Act as a highly experienced financial analyst. 
-        Your task is to analyze the provided financial data including transactions, audits, debits, credits, and other records.
+Act as a highly experienced financial analyst. 
+Your task is to analyze the provided financial data including transactions, audits, debits, credits, and other records.
 
-        Please perform the following:
-        - Summarize key financial insights
-        - Generate data for charts (e.g., revenue trends, expenses, etc.)
-        - Predict future revenue and expenses for the next 6 months
-        - Provide actionable insights on how to improve financial performance
-        -Give insights and improvementsuggestion pointwise
+Please perform the following:
+- Summarize key financial insights
+- Generate data for charts (e.g., revenue trends, expenses, etc.)
+- Predict future revenue and expenses for the next 6 months
+- Provide actionable insights on how to improve financial performance
+- Give insights and improvement suggestions pointwise
 
-        Here is the raw financial data extracted from an Excel file:
-        ${excelText}
+**Important:** Return the key insights as an array of strings (not objects). Each string should concisely summarize one insight.
 
-        I want the response in valid JSON format with the following structure:
-        {
-          "Summary": "",
-          "KeyInsights": [],
-          "ChartData": {
-            "ExpensesByCategory": {
-              "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-              "datasets": [{
-                "label": "Expenses",
-                "data": [800, 900, 850, 950, 1000, 900]
-              }]
-            },
-            "TotalExpenses": {
-              "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-              "datasets": [{
-                "label": "Expenses",
-                "data": [1000, 1500, 1200, 1800, 2000, 1700]
-              }]
-            }
-          },
-           "forecast": "",
-          "FuturePredictions": {
-            "labels": ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-            "datasets": [{
-              "label": "Predicted Revenue",
-              "data": [2100, 2300, 2500, 2700, 2900, 3100]
-            }, {
-              "label": "Predicted Expenses",
-              "data": [1700, 1800, 1900, 2000, 2100, 2200]
-            }]
-          },
-          "improvementsuggestions": [
-          "Optimize cost structures by reducing unnecessary expenses.",
-          "Increase revenue streams through diversified income sources.",
-          "Enhance customer retention with better service offerings."
-          ]
-        }
-    `;
+Here is the raw financial data extracted from an Excel file:
+${excelText}
+
+I want the response in valid JSON format with the following structure:
+{
+  "Summary": "",
+  "KeyInsights": [
+    "Revenue: 2485.76 (Increasing) - The revenue has been consistently increasing over the years.",
+    "Profit/Loss: -2451.18 (Decreasing) - The company has been consistently incurring losses over the years.",
+    "Employee Benefit Expenses: 621.01 (Increasing) - The company's employee benefit expenses have been increasing over the years."
+  ],
+  "ChartData": {
+    "ExpensesByCategory": {
+      "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+      "datasets": [{
+        "label": "Expenses",
+        "data": [800, 900, 850, 950, 1000, 900]
+      }]
+    },
+    "TotalExpenses": {
+      "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+      "datasets": [{
+        "label": "Expenses",
+        "data": [1000, 1500, 1200, 1800, 2000, 1700]
+      }]
+    }
+  },
+  "forecast": "",
+  "FuturePredictions": {
+    "labels": ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    "datasets": [{
+      "label": "Predicted Revenue",
+      "data": [2100, 2300, 2500, 2700, 2900, 3100]
+    }, {
+      "label": "Predicted Expenses",
+      "data": [1700, 1800, 1900, 2000, 2100, 2200]
+    }]
+  },
+  "improvementsuggestions": [
+    "Optimize cost structures by reducing unnecessary expenses.",
+    "Increase revenue streams through diversified income sources.",
+    "Enhance customer retention with better service offerings."
+  ]
+}
+`;
 
   const responseText = await generateContent(inputPrompt);
   return responseText;
 };
+
+
 
 
 

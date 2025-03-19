@@ -2,10 +2,10 @@ const express = require('express');
 const Project = require('../models/Project');
 const protect = require('../middleware/authMiddleware'); 
 const { upload, handleMulterError } = require('../utils/multer');
-const { queryFinancialData , analyzeFinancialData } = require('../utils/llm');
+// const { queryFinancialData , analyzeFinancialData } = require('../utils/llm');
 const validatePreferences = require('../middleware/validatePrefernces');
 const UserPreferences = require('../models/UserPreferences');
-// const { analyzeFinancialData , queryFinancialData } = require('../utils/groq');
+const { analyzeFinancialData , queryFinancialData } = require('../utils/groq');
 
 const router = express.Router();
 

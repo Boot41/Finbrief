@@ -328,57 +328,55 @@ const Dashboard = () => {
           {/* Top Cards: Welcome & Quick Tips */}
           <QuickTips setModal={setModal} isLoading={isLoading}></QuickTips>
 
-          {/* Additional: Compare Selected Files Button */}
-          {/* Compare Selected Files Button - only shown if 2 or more projects are selected */}
-          {selectedProjects.length >= 2 && (
-            <div className="mb-4">
-              <button
-                onClick={handleCompare}
-                disabled={isComparing}
-                className={`px-4 py-2 rounded-lg font-medium text-white transition-colors duration-300 focus:outline-none flex items-center justify-center gap-2 ${
-                  isComparing
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : selectedProjects.length === 2
-                    ? "bg-blue-600 hover:bg-blue-700 focus:ring-blue-300"
-                    : "bg-green-600 hover:bg-green-700 focus:ring-green-300"
-                }`}
-              >
-                {isComparing ? (
-                  <>
-                    <svg
-                      className="animate-spin h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Comparing...
-                  </>
-                ) : (
-                  "Compare Selected Files"
-                )}
-              </button>
-            </div>
-          )}
-
-          {/* Recent Projects */}
+          {/* Recent Projects Header with Compare Button */}
           <section>
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
-              Recent Projects
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+                Recent Projects
+              </h2>
+              {/* Compare Selected Files Button - only shown if 2 or more projects are selected */}
+              {selectedProjects.length >= 2 && (
+                <button
+                  onClick={handleCompare}
+                  disabled={isComparing}
+                  className={`px-4 py-2 rounded-lg font-medium text-white transition-colors duration-300 focus:outline-none flex items-center justify-center gap-2 ${
+                    isComparing
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : selectedProjects.length === 2
+                      ? "bg-blue-600 hover:bg-blue-700 focus:ring-blue-300"
+                      : "bg-green-600 hover:bg-green-700 focus:ring-green-300"
+                  }`}
+                >
+                  {isComparing ? (
+                    <>
+                      <svg
+                        className="animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Comparing...
+                    </>
+                  ) : (
+                    "Compare Selected Files"
+                  )}
+                </button>
+              )}
+            </div>
 
             {/* Loading Spinner */}
             <Spinner isLoading={isLoading}></Spinner>
