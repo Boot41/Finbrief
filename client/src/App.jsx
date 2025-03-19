@@ -14,6 +14,7 @@ import Login from "./Pages/Login";
 import Forecast from "./Pages/Forecast";
 import AuthContext from "./context/AuthContext";
 import Compare from "./Pages/Compare";
+import Form from "./Pages/Form";
 
 function App() {
   const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext); // Fix: Use authentication context
@@ -36,8 +37,10 @@ function App() {
             <Route path="/search" element={<Search />} />
             <Route path="/forecast/:id" element={<Forecast />} />
             <Route path="/compare" element={<Compare />} />
+            <Route path="/form" element={<Form></Form>} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </>
+        
         ) : (
           <Route path="*" element={<Navigate to="/login" replace />} />
         )}

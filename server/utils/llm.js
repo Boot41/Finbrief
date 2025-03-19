@@ -45,17 +45,11 @@ const generateContent = async (input) => {
   return responseText.candidates[0].content.parts[0].text;
 };
 
-
-
 /**
  * Function to analyze and store financial data insights.
  */
 module.exports.analyzeFinancialData = async (filePath) => {
   const excelText = await inputExcelText(filePath);
-
-  const API_KEY = process.env.GOOGLE_API_KEY;
-  const genAI = new GoogleGenerativeAI(API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   const inputPrompt = `
         Act as a highly experienced financial analyst. 
@@ -114,6 +108,8 @@ module.exports.analyzeFinancialData = async (filePath) => {
   return responseText;
 };
 
+
+
 /**
  * Function to handle user queries on uploaded Excel data.
  */
@@ -170,6 +166,8 @@ module.exports.queryFinancialData = async (filePath, userQuery) => {
 };
 
 
+
+//Comparing Financial Data
 module.exports.compareFinancialData = async (filePaths) => {
   const filesData = await inputExcelTexts(filePaths);
 

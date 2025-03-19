@@ -2,9 +2,31 @@ const express = require('express');
 const Project = require('../models/Project');
 const protect = require('../middleware/authMiddleware'); 
 const { upload, handleMulterError } = require('../utils/multer');
-const { analyzeFinancialData, queryFinancialData } = require('../utils/llm');
+const { queryFinancialData , analyzeFinancialData } = require('../utils/llm');
+const validatePreferences = require('../middleware/validatePrefernces');
+const UserPreferences = require('../models/UserPreferences');
+// const { analyzeFinancialData , queryFinancialData } = require('../utils/groq');
 
 const router = express.Router();
+
+
+router.post('/form',protect,validatePreferences, async (req, res) => {
+  try {
+    const { modelType, temperature, profession } = req.body;
+
+    const preferences = new UserPreferences({
+      userId: req.userId,// Attach the logged-in user's ID
+      modelType,
+      temperature,
+      profession
+    });
+
+    const savedPreferences = await preferences.save();
+    res.status(201).json(savedPreferences);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
 
 
 // Upload a new project file
@@ -36,7 +58,7 @@ router.post('/', protect, upload.single('file'), handleMulterError, async (req, 
 
 
 
-// Analyze uploaded file using LLM
+// Analyze uploaded file using Gemini and  Groq
 router.post('/analyze/:id', protect, async (req, res) => {
   console.log(req.params.id)
   try {
@@ -62,7 +84,9 @@ router.post('/analyze/:id', protect, async (req, res) => {
       analysisData = JSON.parse(analysis);
     } catch (e) {
       // If direct parsing fails, try to extract JSON from the string
+      console.log(typeof analysis);
       const jsonMatch = analysis.match(/\{[\s\S]*\}/);
+      console.log(jsonMatch);
       if (jsonMatch) {
         analysisData = JSON.parse(jsonMatch[0]);
       } else {
@@ -90,6 +114,8 @@ router.post('/analyze/:id', protect, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+
 
 
 // Get all projects for a user

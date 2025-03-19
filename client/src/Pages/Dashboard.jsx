@@ -20,10 +20,8 @@ const Dashboard = () => {
   const [name, setname] = useState("");
   // Additional state to track selected projects for comparison
   const [selectedProjects, setSelectedProjects] = useState([]);
- const [comparisonResult, setComparisonResult] = useState(null);
- const [isComparing, setIsComparing] = useState(false);
-
-
+  const [comparisonResult, setComparisonResult] = useState(null);
+  const [isComparing, setIsComparing] = useState(false);
 
   // for username
   useEffect(() => {
@@ -233,69 +231,72 @@ const Dashboard = () => {
     }
   };
 
- // Handle project selection with max limit
-const handleSelectProject = (projectId) => {
-  setSelectedProjects((prevSelected) => {
-    if (prevSelected.includes(projectId)) {
-      return prevSelected.filter((id) => id !== projectId);
-    }
-    return prevSelected.length < 5 // Limit to 5 projects for better comparison
-      ? [...prevSelected, projectId]
-      : prevSelected;
-  });
-};
-
-// Handle comparison with proper error states
-const handleCompare = async () => {
-  if (selectedProjects.length < 2 || selectedProjects.length > 5) {
-    alert("Please select 2-5 projects to compare");
-    return;
-  }
-
-  try {
-    setIsComparing(true); // Start loading
-    const response = await axios.get(
-      `http://localhost:5000/api/compare?projectIds=${selectedProjects.join(",")}`,
-      {
-        headers: {
-          token: localStorage.getItem("token"),
-        },
+  // Handle project selection with max limit
+  const handleSelectProject = (projectId) => {
+    setSelectedProjects((prevSelected) => {
+      if (prevSelected.includes(projectId)) {
+        return prevSelected.filter((id) => id !== projectId);
       }
-    );
+      return prevSelected.length < 5 // Limit to 5 projects for better comparison
+        ? [...prevSelected, projectId]
+        : prevSelected;
+    });
+  };
 
-    if (response.data.success) {
-      const { analysis, charts, bestPerformingCompany, id } = response.data.data;
-      
-      setComparisonResult({
-        analysisId: id,
-        insights: analysis,
-        visualizations: charts,
-        topPerformer: bestPerformingCompany
-      });
-
-      navigate("/compare", {
-        state: {
-          analysisData: analysis,
-          chartData: charts,
-          bestCompany: bestPerformingCompany,
-          analysisId: id
-        }
-      });
+  // Handle comparison with proper error states
+  const handleCompare = async () => {
+    if (selectedProjects.length < 2 || selectedProjects.length > 5) {
+      alert("Please select 2-5 projects to compare");
+      return;
     }
-  } catch (error) {
-    console.error("Comparison error:", error);
-    
-    const errorMessage = error.response?.data?.message || 
-      (error.message.includes("AI analysis")
-        ? "Analysis failed - please try different projects"
-        : "Comparison service unavailable");
 
-    alert(`Comparison failed: ${errorMessage}`);
-  }finally {
-    setIsComparing(false); // Stop loading regardless of success/error
-  }
-};
+    try {
+      setIsComparing(true); // Start loading
+      const response = await axios.get(
+        `http://localhost:5000/api/compare?projectIds=${selectedProjects.join(
+          ","
+        )}`,
+        {
+          headers: {
+            token: localStorage.getItem("token"),
+          },
+        }
+      );
 
+      if (response.data.success) {
+        const { analysis, charts, bestPerformingCompany, id } =
+          response.data.data;
+
+        setComparisonResult({
+          analysisId: id,
+          insights: analysis,
+          visualizations: charts,
+          topPerformer: bestPerformingCompany,
+        });
+
+        navigate("/compare", {
+          state: {
+            analysisData: analysis,
+            chartData: charts,
+            bestCompany: bestPerformingCompany,
+            analysisId: id,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Comparison error:", error);
+
+      const errorMessage =
+        error.response?.data?.message ||
+        (error.message.includes("AI analysis")
+          ? "Analysis failed - please try different projects"
+          : "Comparison service unavailable");
+
+      alert(`Comparison failed: ${errorMessage}`);
+    } finally {
+      setIsComparing(false); // Stop loading regardless of success/error
+    }
+  };
 
   // Format file size
   const formatFileSize = (bytes) => {
@@ -328,45 +329,50 @@ const handleCompare = async () => {
           <QuickTips setModal={setModal} isLoading={isLoading}></QuickTips>
 
           {/* Additional: Compare Selected Files Button */}
-          <div className="mb-4">
-  <button
-    onClick={handleCompare}
-    disabled={selectedProjects.length === 0 || isComparing}
-    className={`px-4 py-2 rounded-lg font-medium text-white transition-colors duration-300 focus:outline-none flex items-center justify-center gap-2 ${
-      selectedProjects.length === 0 || isComparing
-        ? "bg-gray-400 cursor-not-allowed"
-        : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-300"
-    }`}
-  >
-    {isComparing ? (
-      <>
-        <svg
-          className="animate-spin h-5 w-5 text-white"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          ></circle>
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          ></path>
-        </svg>
-        Comparing...
-      </>
-    ) : (
-      "Compare Selected Files"
-    )}
-  </button>
-</div>
+          {/* Compare Selected Files Button - only shown if 2 or more projects are selected */}
+          {selectedProjects.length >= 2 && (
+            <div className="mb-4">
+              <button
+                onClick={handleCompare}
+                disabled={isComparing}
+                className={`px-4 py-2 rounded-lg font-medium text-white transition-colors duration-300 focus:outline-none flex items-center justify-center gap-2 ${
+                  isComparing
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : selectedProjects.length === 2
+                    ? "bg-blue-600 hover:bg-blue-700 focus:ring-blue-300"
+                    : "bg-green-600 hover:bg-green-700 focus:ring-green-300"
+                }`}
+              >
+                {isComparing ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Comparing...
+                  </>
+                ) : (
+                  "Compare Selected Files"
+                )}
+              </button>
+            </div>
+          )}
 
           {/* Recent Projects */}
           <section>
@@ -485,11 +491,14 @@ const handleCompare = async () => {
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 002-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                           />
                         </svg>
-                        {new Date(project.uploadedAt).toLocaleDateString(undefined, {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
+                        {new Date(project.uploadedAt).toLocaleDateString(
+                          undefined,
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )}
                       </div>
                     </div>
 
