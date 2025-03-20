@@ -91,12 +91,7 @@ const Compare = () => {
                   {chartKey.replace(/([A-Z])/g, " $1")}
                 </h3>
                 <div className="h-64">
-                  {chartKey === "TimeSeriesComparison" ? (
-                    <Line
-                      data={createChart(chartKey, chartConfig)}
-                      options={{ responsive: true, maintainAspectRatio: false }}
-                    />
-                  ) : chartKey === "Distribution" ? (
+                  {chartKey === "Distribution" ? (
                     <Pie
                       data={createChart(chartKey, chartConfig)}
                       options={{ responsive: true, maintainAspectRatio: false }}

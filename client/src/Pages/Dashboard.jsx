@@ -339,13 +339,12 @@ const Dashboard = () => {
                 <button
                   onClick={handleCompare}
                   disabled={isComparing}
-                  className={`px-4 py-2 rounded-lg font-medium text-white transition-colors duration-300 focus:outline-none flex items-center justify-center gap-2 ${
-                    isComparing
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : selectedProjects.length === 2
+                  className={`px-4 py-2 rounded-lg font-medium text-white transition-colors duration-300 focus:outline-none flex items-center justify-center gap-2 ${isComparing
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : selectedProjects.length === 2
                       ? "bg-blue-600 hover:bg-blue-700 focus:ring-blue-300"
                       : "bg-green-600 hover:bg-green-700 focus:ring-green-300"
-                  }`}
+                    }`}
                 >
                   {isComparing ? (
                     <>
@@ -409,11 +408,10 @@ const Dashboard = () => {
                       <div className="flex-1"></div>
                       <div className="flex items-center gap-2">
                         <span
-                          className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${
-                            project.status === "analyzed"
-                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-                          }`}
+                          className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${project.status === "analyzed"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+                            }`}
                         >
                           {project.status === "analyzed"
                             ? "Analyzed"
@@ -504,10 +502,9 @@ const Dashboard = () => {
                       <button
                         onClick={() => handleAnalyze(project)}
                         className={`flex items-center justify-center gap-1 px-4 py-2 rounded-lg font-medium text-white transition-colors duration-300 
-                          ${
-                            project.status === "analyzed"
-                              ? "bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-300"
-                              : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-300"
+                          ${project.status === "analyzed"
+                            ? "bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-300"
+                            : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-300"
                           } focus:ring-4 focus:outline-none`}
                         disabled={isLoading}
                       >
@@ -635,6 +632,8 @@ const Dashboard = () => {
         formatFileSize={formatFileSize}
       ></Modal>
     </div>
+
+
   );
 };
 

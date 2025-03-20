@@ -35,13 +35,13 @@ function EmptyState({isLoading ,projects}) {
                 <p className="text-gray-600 dark:text-gray-400 mb-6">
                   Upload your first Excel file to get started
                 </p>
-                <button
+                {/* <button
                   onClick={() => setModal(true)}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg px-6 py-2 
                   transition-colors duration-300 focus:ring-4 focus:ring-indigo-300 focus:outline-none"
                 >
                   Upload Excel File
-                </button>
+                </button> */}
               </div>
             )}
     </div>

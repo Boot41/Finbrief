@@ -219,6 +219,8 @@ module.exports.compareFinancialData = async (
             "datasets": [
               {"label": "Company A Revenue", "data": [100, 200, 300,...]},
               {"label": "Company B Revenue", "data": [150, 250, 350,...]}
+             {"label": "Company C Revenue", "data": [550, 250, 350,...]}
+
             ]
           },
           "MetricComparison": {
@@ -226,6 +228,8 @@ module.exports.compareFinancialData = async (
             "datasets": [
               {"label": "Company A", "data": [5000, 3000, 2000]},
               {"label": "Company B", "data": [6000, 4000, 2000]}
+             {"label": "Company C", "data": [8000, 5000, 1000]}
+
             ]
           },
           "GrowthRateComparison": {
@@ -233,6 +237,8 @@ module.exports.compareFinancialData = async (
             "datasets": [
               {"label": "Company A", "data": [15, 5]},
               {"label": "Company B", "data": [20, 8]}
+              {"label": "Company C", "data": [10, 8]}
+
             ]
           }
         }
