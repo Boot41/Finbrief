@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">14.81% </span>
+                <span class="strong">40.74% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>4/27</span>
+                <span class='fraction'>11/27</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">28.57% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/14</span>
+                <span class='fraction'>4/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>2/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">14.81% </span>
+                <span class="strong">40.74% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>4/27</span>
+                <span class='fraction'>11/27</span>
             </div>
         
             
@@ -147,7 +147,29 @@
 <a name='L82'></a><a href='#L82'>82</a>
 <a name='L83'></a><a href='#L83'>83</a>
 <a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -157,34 +179,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -234,8 +236,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const geminiService = require("./llm");
 const groqService = require("./groq");
 &nbsp;
-const applyStyleContext = <span class="fstat-no" title="function not covered" >(p</span>rompt, preferences) =&gt; {
-  const styleMap = <span class="cstat-no" title="statement not covered" >{</span>
+&nbsp;
+const applyStyleContext = (prompt, preferences) =&gt; {
+  const styleMap = {
     Normal:
       "Provide balanced analysis with moderate detail and clear explanations.",
     Concise: "Provide concise bullet points with key metrics.",
@@ -244,31 +247,31 @@ const applyStyleContext = <span class="fstat-no" title="function not covered" >(
       "Use professional, academic-style analysis with precise terminology.",
   };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return `${styleMap[preferences.style] || ""} \nContext: ${</span>
+  return `${styleMap[preferences.style] || ""} \nContext: ${
     preferences.profession
   } analysis\n${prompt}`;
 };
 &nbsp;
 module.exports = {
-  analyzeFinancialData: <span class="fstat-no" title="function not covered" >as</span>ync (preferences, filePath) =&gt; {
-    const basePrompt = <span class="cstat-no" title="statement not covered" >`Analyze this financial data considering:\n- Professional context: ${preferences.profession}\n- Preferred style: ${preferences.style}`;</span>
-    const fullPrompt = <span class="cstat-no" title="statement not covered" >applyStyleContext(basePrompt, preferences);</span>
+  analyzeFinancialData: async (preferences, filePath) =&gt; {
+    const basePrompt = `Analyze this financial data considering:\n- Professional context: ${preferences.profession}\n- Preferred style: ${preferences.style}`;
+    const fullPrompt = applyStyleContext(basePrompt, preferences);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    if (preferences.modelType === "gemini-2.0-flash") {</span>
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (preferences.modelType === "gemini-2.0-flash") {
 <span class="cstat-no" title="statement not covered" >      return geminiService.analyzeFinancialData(</span>
         filePath,
         preferences.temperature,
         fullPrompt
       );
     }
-<span class="cstat-no" title="statement not covered" >    if (preferences.modelType === "mixtral-8x7b-32768") {</span>
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (preferences.modelType === "gemma2-9b-it") {
 <span class="cstat-no" title="statement not covered" >      return groqService.analyzeFinancialData(</span>
         filePath,
         preferences.temperature,
         fullPrompt
       );
     }
-<span class="cstat-no" title="statement not covered" >    throw new Error("Invalid model type in preferences");</span>
+    throw new Error("Invalid model type in preferences");
   },
 &nbsp;
   queryFinancialData: <span class="fstat-no" title="function not covered" >as</span>ync (preferences, filePath, userQuery) =&gt; {
@@ -283,7 +286,7 @@ module.exports = {
         fullPrompt
       );
     }
-<span class="cstat-no" title="statement not covered" >    if (preferences.modelType === "mixtral-8x7b-32768") {</span>
+<span class="cstat-no" title="statement not covered" >    if (preferences.modelType === "gemma2-9b-it") {</span>
 <span class="cstat-no" title="statement not covered" >      return groqService.queryFinancialData(</span>
         filePath,
         userQuery,
@@ -305,7 +308,7 @@ module.exports = {
         fullPrompt
       );
     }
-<span class="cstat-no" title="statement not covered" >    if (preferences.modelType === "mixtral-8x7b-32768") {</span>
+<span class="cstat-no" title="statement not covered" >    if (preferences.modelType === "gemma2-9b-it") {</span>
 <span class="cstat-no" title="statement not covered" >      return groqService.compareFinancialData(</span>
         filePaths,
         preferences.temperature,
@@ -322,7 +325,7 @@ module.exports = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-20T12:26:19.067Z
+                at 2025-03-20T21:28:50.534Z
             </div>
         <script src="../prettify.js"></script>
         <script>

@@ -40,7 +40,6 @@ function App() {
             <Route path="/form" element={<Form></Form>} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </>
-        
         ) : (
           <Route path="*" element={<Navigate to="/login" replace />} />
         )}

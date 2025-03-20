@@ -5,7 +5,7 @@ const validatePreferences = (req, res, next) => {
 
   if (
     !modelType ||
-    !["mixtral-8x7b-32768", "gemini-2.0-flash"].includes(modelType)
+    !["gemma2-9b-it", "gemini-2.0-flash"].includes(modelType)
   ) {
     return res.status(400).json({ message: "Invalid model type" });
   }

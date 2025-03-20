@@ -3,8 +3,8 @@ project_id = "boot41"
 region     = "asia-south1"
 
 # Container Deployment Configuration
-service_name    = "finbrief1"
-container_image = "asia-south1-docker.pkg.dev/boot41/a3/finbrief1"
+service_name    = "finbrief6"
+container_image = "asia-south1-docker.pkg.dev/boot41/a3/finbrief6"
 container_tag   = "latest"
 
 # Environment Variables (Optional)

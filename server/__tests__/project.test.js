@@ -8,9 +8,29 @@ const UserPreferences = require('../models/UserPreferences');
 const projectRoutes = require('../routes/projectRoutes');
 const mockProtect = require('./helpers/authMiddleware');
 const cors = require('cors');
+const services = require('../utils/services');
+const multer = require('../utils/multer');
 
 // Mock the protect middleware
 jest.mock('../middleware/authMiddleware', () => require('./helpers/authMiddleware'));
+
+// Mock the services module
+jest.mock('../utils/services');
+
+// Mock multer
+jest.mock('../utils/multer', () => ({
+  upload: {
+    single: () => (req, res, next) => {
+      if (req.body.file) {
+        req.file = JSON.parse(req.body.file);
+        next();
+      } else {
+        next();
+      }
+    }
+  },
+  handleMulterError: (err, req, res, next) => next()
+}));
 
 let mongoServer;
 const app = express();
@@ -56,10 +76,10 @@ describe('Project Routes', () => {
     it('should return user preferences when they exist', async () => {
       const preferences = new UserPreferences({
         userId,
-        modelType: 'mixtral-8x7b-32768',
+        modelType: 'gemma2-9b-it',
         temperature: 0.7,
         profession: 'Financial Analyst',
-        style: 'formal'
+        style: 'Formal'
       });
       await preferences.save();
 
@@ -68,19 +88,19 @@ describe('Project Routes', () => {
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('modelType', 'mixtral-8x7b-32768');
+      expect(response.body).toHaveProperty('modelType', 'gemma2-9b-it');
       expect(response.body).toHaveProperty('temperature', 0.7);
       expect(response.body).toHaveProperty('profession', 'Financial Analyst');
-      expect(response.body).toHaveProperty('style', 'formal');
+      expect(response.body).toHaveProperty('style', 'Formal');
     });
   });
 
   describe('POST /api/projects/form', () => {
     const validPreferences = {
-      modelType: 'mixtral-8x7b-32768',
+      modelType: 'gemma2-9b-it',
       temperature: 0.7,
       profession: 'Financial Analyst',
-      style: 'formal'
+      style: 'Formal'
     };
 
     it('should create new preferences', async () => {
@@ -104,7 +124,7 @@ describe('Project Routes', () => {
       const updatedPreferences = {
         ...validPreferences,
         temperature: 0.8,
-        style: 'casual'
+        style: 'Concise'
       };
 
       const response = await request(app)
@@ -231,6 +251,98 @@ describe('Project Routes', () => {
         .send({ status: 'analyzed' });
 
       expect(response.status).toBe(404);
+    });
+  });
+
+  describe('POST /api/projects/analyze/:id', () => {
+    let projectId;
+
+    beforeEach(async () => {
+      // Create a test project
+      const project = await Project.create({
+        userId,
+        filename: 'test.xlsx',
+        status: 'uploaded',
+        filePath: '/path/to/test.xlsx',
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        size: 1024
+      });
+      projectId = project._id;
+
+      // Create test user preferences
+      await UserPreferences.create({
+        userId,
+        modelType: 'gemma2-9b-it',
+        temperature: 0.7,
+        profession: 'Financial Analyst',
+        style: 'Formal'
+      });
+    });
+
+    it('should successfully analyze a project', async () => {
+      const mockAnalysis = {
+        Summary: 'Test summary',
+        KeyInsights: ['Insight 1', 'Insight 2'],
+        ChartData: { data: [1, 2, 3] },
+        forecast: 'Positive growth',
+        FuturePredictions: ['Prediction 1', 'Prediction 2'],
+        improvementsuggestions: ['Suggestion 1', 'Suggestion 2']
+      };
+
+      services.analyzeFinancialData.mockResolvedValue(JSON.stringify(mockAnalysis));
+
+      const response = await request(app)
+        .post(`/api/projects/analyze/${projectId}`)
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('summary', 'Test summary');
+      expect(response.body).toHaveProperty('insights');
+      expect(response.body).toHaveProperty('chartData');
+      expect(response.body).toHaveProperty('status', 'analyzed');
+    });
+
+    it('should return 404 if project not found', async () => {
+      const fakeId = new mongoose.Types.ObjectId();
+      const response = await request(app)
+        .post(`/api/projects/analyze/${fakeId}`)
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Project not found');
+    });
+
+    it('should return 400 if user preferences not found', async () => {
+      await UserPreferences.deleteMany({}); // Remove user preferences
+
+      const response = await request(app)
+        .post(`/api/projects/analyze/${projectId}`)
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('User preferences not found');
+    });
+
+    it('should handle invalid JSON response from LLM', async () => {
+      services.analyzeFinancialData.mockResolvedValue('Invalid JSON');
+
+      const response = await request(app)
+        .post(`/api/projects/analyze/${projectId}`)
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(500);
+      expect(response.body.message).toBe('Invalid JSON response from LLM');
+    });
+  });
+
+  describe('POST /api/projects', () => {
+    it('should return 400 if no file is uploaded', async () => {
+      const response = await request(app)
+        .post('/api/projects')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Please upload a file.');
     });
   });
 });

@@ -9,8 +9,8 @@ const userPreferencesSchema = new mongoose.Schema({
   modelType: { 
     type: String, 
     required: true,
-    enum: ['gemini-2.0-flash', 'mixtral-8x7b-32768'],
-    default: 'mixtral-8x7b-32768'
+    enum: ['gemini-2.0-flash', 'gemma2-9b-it'],
+    default: 'gemma2-9b-it'
   },
   temperature: { 
     type: Number, 

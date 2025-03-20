@@ -43,7 +43,7 @@ const generateContent = async (input, temperature = 0.3) => {
           content: input,
         },
       ],
-      model: "mixtral-8x7b-32768",
+      model: "gemma2-9b-it",
       temperature: temperature,
       max_tokens: 4096,
       response_format: { type: "json_object" },

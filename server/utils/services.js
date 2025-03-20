@@ -29,7 +29,7 @@ module.exports = {
         fullPrompt
       );
     }
-    if (preferences.modelType === "mixtral-8x7b-32768") {
+    if (preferences.modelType === "gemma2-9b-it") {
       return groqService.analyzeFinancialData(
         filePath,
         preferences.temperature,
@@ -51,7 +51,7 @@ module.exports = {
         fullPrompt
       );
     }
-    if (preferences.modelType === "mixtral-8x7b-32768") {
+    if (preferences.modelType === "gemma2-9b-it") {
       return groqService.queryFinancialData(
         filePath,
         userQuery,
@@ -73,7 +73,7 @@ module.exports = {
         fullPrompt
       );
     }
-    if (preferences.modelType === "mixtral-8x7b-32768") {
+    if (preferences.modelType === "gemma2-9b-it") {
       return groqService.compareFinancialData(
         filePaths,
         preferences.temperature,

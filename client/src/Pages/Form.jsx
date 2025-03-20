@@ -8,7 +8,7 @@ import axios from "axios";
 export default function Form() {
   const navigate = useNavigate();
 
-  const [modelType, setModelType] = useState("");
+  const [modelType, setModelType] = useState("gemma2-9b-it"); 
   const [temperature, setTemperature] = useState(0.5);
   const [profession, setProfession] = useState("");
   const [style, setStyle] = useState(""); // New state for style
@@ -27,7 +27,7 @@ export default function Form() {
           }
         );
         const { modelType, temperature, profession, style } = response.data;
-        setModelType(modelType || "");
+        setModelType(modelType || "gemma2-9b-it"); 
         setTemperature(temperature || 0.5);
         setProfession(profession || "");
         setStyle(style || "");
@@ -56,6 +56,12 @@ export default function Form() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
+      // Validate model type before submission
+      if (!['gemini-2.0-flash', 'gemma2-9b-it'].includes(modelType)) {
+        setError('Invalid model type selected');
+        return;
+      }
+
       const response = await axios.post(
         "http://localhost:5000/api/projects/form",
         {
@@ -194,12 +200,11 @@ export default function Form() {
               value={modelType}
               name="modelType"
               onChange={handleChange}
+              required
               className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             >
-              <option value="" disabled>
-                Select a model
-              </option>
-              <option value="mixtral-8x7b-32768">Groq</option>
+              <option value="">Select a model</option>
+              <option value="gemma2-9b-it">Groq</option>
               <option value="gemini-2.0-flash">Gemini</option>
             </select>
           </div>
