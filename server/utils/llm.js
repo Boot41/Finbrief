@@ -19,9 +19,8 @@ const inputExcelText = async (filePath) => {
   const sheet = workbook.Sheets[sheetName];
   const jsonData = xlsx.utils.sheet_to_json(sheet, { header: 1 });
 
-  return jsonData.map(row => row.join(" ")).join("\n");
+  return jsonData.map((row) => row.join(" ")).join("\n");
 };
-
 
 const inputExcelTexts = async (filePaths) => {
   let fileData = [];
@@ -31,7 +30,10 @@ const inputExcelTexts = async (filePaths) => {
     const sheet = workbook.Sheets[sheetName];
     const jsonData = xlsx.utils.sheet_to_json(sheet, { header: 1 });
 
-    fileData.push({ filePath, content: jsonData.map(row => row.join(" ")).join("\n") });
+    fileData.push({
+      filePath,
+      content: jsonData.map((row) => row.join(" ")).join("\n"),
+    });
   }
   return fileData;
 };
@@ -39,8 +41,20 @@ const inputExcelTexts = async (filePaths) => {
 /**
  * Generates AI response based on input.
  */
-const generateContent = async (input) => {
-  const response = await model.generateContent([input]);
+const generateContent = async (input, temperature = 0.3) => {
+  // Configure model with temperature
+  const modelConfig = {
+    temperature: temperature,
+    // Add any other model configuration parameters here
+  };
+
+  // Create a new model instance with the configuration
+  const configuredModel = genAI.getGenerativeModel({
+    model: "gemini-2.0-flash",
+    ...modelConfig,
+  });
+
+  const response = await configuredModel.generateContent([input]);
   const responseText = await response.response;
   return responseText.candidates[0].content.parts[0].text;
 };
@@ -48,10 +62,12 @@ const generateContent = async (input) => {
 /**
  * Function to analyze and store financial data insights.
  */
-module.exports.analyzeFinancialData = async (filePath) => {
+module.exports.analyzeFinancialData = async (filePath, temperature, prompt) => {
   const excelText = await inputExcelText(filePath);
 
   const inputPrompt = `
+        ${prompt || ""}
+        
         Act as a highly experienced financial analyst. 
         Your task is to analyze the provided financial data including transactions, audits, debits, credits, and other records.
 
@@ -104,19 +120,23 @@ module.exports.analyzeFinancialData = async (filePath) => {
         }
     `;
 
-  const responseText = await generateContent(inputPrompt);
-  return responseText;
+  return await generateContent(inputPrompt, temperature);
 };
-
-
 
 /**
  * Function to handle user queries on uploaded Excel data.
  */
-module.exports.queryFinancialData = async (filePath, userQuery) => {
+module.exports.queryFinancialData = async (
+  filePath,
+  userQuery,
+  temperature,
+  prompt
+) => {
   const excelText = await inputExcelText(filePath);
 
   const queryPrompt = `
+        ${prompt || ""}
+        
         Act as a financial expert analyzing the given data.
         Answer the user's question based on the financial data provided.
         Provide visualizations that best represent the data for the query.
@@ -161,21 +181,24 @@ module.exports.queryFinancialData = async (filePath, userQuery) => {
         Only include chart types that are relevant to the query.
     `;
 
-  const responseText = await generateContent(queryPrompt);
-  return responseText;
+  return await generateContent(queryPrompt, temperature);
 };
 
-
-
 //Comparing Financial Data
-module.exports.compareFinancialData = async (filePaths) => {
+module.exports.compareFinancialData = async (
+  filePaths,
+  temperature,
+  prompt
+) => {
   const filesData = await inputExcelTexts(filePaths);
 
   let formattedData = filesData
-    .map(file => `File: ${file.filePath}\nData:\n${file.content}`)
+    .map((file) => `File: ${file.filePath}\nData:\n${file.content}`)
     .join("\n\n");
 
   const inputPrompt = `
+      ${prompt || ""}
+      
       Act as a highly experienced financial analyst. 
       Perform a comprehensive comparative analysis of the provided financial data from multiple companies.
 
@@ -238,11 +261,7 @@ module.exports.compareFinancialData = async (filePaths) => {
       }
   `;
 
-  const responseText = await generateContent(inputPrompt);
-  const cleanedResponse = responseText.replace(/```json|```/g, "").trim();
-  
-  return cleanedResponse;
+  const responseText = await generateContent(inputPrompt, temperature);
+  console.log(responseText)
+  return responseText.replace(/```json|```/g, "").trim();
 };
-
-
-

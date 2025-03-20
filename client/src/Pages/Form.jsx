@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UserCircle } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
@@ -11,8 +11,33 @@ export default function Form() {
   const [modelType, setModelType] = useState("");
   const [temperature, setTemperature] = useState(0.5);
   const [profession, setProfession] = useState("");
+  const [style, setStyle] = useState(""); // New state for style
   const [error, setError] = useState("");
-  
+
+  // Fetch user preferences on component mount
+  useEffect(() => {
+    async function fetchPreferences() {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/projects/form",
+          {
+            headers: {
+              token: localStorage.getItem("token"),
+            },
+          }
+        );
+        const { modelType, temperature, profession, style } = response.data;
+        setModelType(modelType || "");
+        setTemperature(temperature || 0.5);
+        setProfession(profession || "");
+        setStyle(style || "");
+      } catch (err) {
+        console.error(err);
+        setError(err.response?.data?.message || "Failed to fetch preferences");
+      }
+    }
+    fetchPreferences();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,39 +46,40 @@ export default function Form() {
       setTemperature(Number.parseFloat(value));
     } else if (name === "profession") {
       setProfession(value);
-      console.log(value); // Log the updated value directly
     } else if (name === "modelType") {
       setModelType(value);
+    } else if (name === "style") {
+      setStyle(value);
     }
   };
-
 
   async function handleSubmit(e) {
     e.preventDefault();
     try {
       const response = await axios.post(
         "http://localhost:5000/api/projects/form",
-        { // This should be an object
+        {
           modelType,
-          temperature :Number(temperature),
-          profession
+          temperature: Number(temperature),
+          profession,
+          style,
         },
-        { // Configuration object for headers
+        {
           headers: {
             "Content-Type": "application/json",
             token: localStorage.getItem("token"),
-          }
+          },
         }
       );
-  
-      if (response.status === 201) {
+
+      // Either a 201 for create or 200 for update, navigate to dashboard
+      if (response.status === 201 || response.status === 200) {
         navigate("/dashboard");
       }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to submit form");
     }
   }
-
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
@@ -119,14 +145,11 @@ export default function Form() {
         </div>
       </div>
 
-      {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-600 rounded-lg text-sm text-center">
-              {error}
-            </div>
-          )}
-
       {/* Right Side - Form */}
-      <form className="flex flex-col justify-center p-8 md:w-1/2" onSubmit={handleSubmit}>
+      <form
+        className="flex flex-col justify-center p-8 md:w-1/2"
+        onSubmit={handleSubmit}
+      >
         <div className="mx-auto w-full max-w-md space-y-8">
           <div className="space-y-2">
             <h2 className="text-2xl font-bold">Configure Your Assistant</h2>
@@ -136,6 +159,11 @@ export default function Form() {
           </div>
 
           {/* Profession and LLM Code Modification */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 text-red-600 rounded-lg text-sm text-center">
+              {error}
+            </div>
+          )}
           <div className="space-y-2">
             <label
               htmlFor="profession"
@@ -148,7 +176,7 @@ export default function Form() {
               placeholder="I'm a software developer and I'd like the LLM to generate response according to my profession"
               className="w-full min-h-[120px] rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               value={profession}
-              name="profession" // Correct name matches state
+              name="profession"
               onChange={handleChange}
             />
           </div>
@@ -162,17 +190,42 @@ export default function Form() {
               Select AI Model
             </label>
             <select
-              id="modelType" // Changed to match state name
+              id="modelType"
               value={modelType}
-              name="modelType" // Changed from "model" to "modelType"
+              name="modelType"
               onChange={handleChange}
               className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             >
               <option value="" disabled>
                 Select a model
               </option>
-              <option value="groq">Groq</option>
-              <option value="gemini">Gemini</option>
+              <option value="mixtral-8x7b-32768">Groq</option>
+              <option value="gemini-2.0-flash">Gemini</option>
+            </select>
+          </div>
+
+          {/* Style Selection */}
+          <div className="space-y-2">
+            <label
+              htmlFor="style"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Select Response Style
+            </label>
+            <select
+              id="style"
+              value={style}
+              name="style"
+              onChange={handleChange}
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            >
+              <option value="" disabled>
+                Select a style
+              </option>
+              <option value="Normal">Normal</option>
+              <option value="Concise">Concise</option>
+              <option value="Explanatory">Explanatory</option>
+              <option value="Formal">Formal</option>
             </select>
           </div>
 
@@ -192,7 +245,7 @@ export default function Form() {
                 max="1"
                 step="0.01"
                 value={temperature}
-                name="temperature" // Correct name matches state
+                name="temperature"
                 onChange={handleChange}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
               />

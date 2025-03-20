@@ -111,7 +111,6 @@ const Login = ({ onLogin }) => {
               onSuccess={async (response) => {
                 const credential = response.credential;
                 const decoded = jwtDecode(credential);
-                console.log(decoded);
                 try {
                   const res = await axios.post(
                     "http://localhost:5000/api/auth/google/callback",

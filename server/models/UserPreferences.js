@@ -9,6 +9,7 @@ const userPreferencesSchema = new mongoose.Schema({
   modelType: { type: String, required: true },
   temperature: { type: Number, required: true },
   profession: { type: String, required: true },
+  style: { type: String, required: true },
   createdAt: { type: Date, default: Date.now }
 });
 

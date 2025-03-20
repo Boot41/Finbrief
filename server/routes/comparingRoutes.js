@@ -4,38 +4,50 @@ const ComparativeAnalysis = require("../models/Comparing"); // Updated model nam
 const protect = require("../middleware/authMiddleware");
 const { compareFinancialData } = require("../utils/llm");
 // const {compareFinancialData} = require("../utils/groq")
+const services = require("../utils/services");
+const UserPreferences = require("../models/UserPreferences");
 
 const router = express.Router();
 
 router.get("/", protect, async (req, res) => {
-  console.log(req.query);
   try {
     // Validate input
     if (!req.query.projectIds) {
-      return res.status(400).json({ message: "projectIds query parameter is required" });
+      return res
+        .status(400)
+        .json({ message: "projectIds query parameter is required" });
     }
 
     const projectIds = req.query.projectIds.split(",");
     if (projectIds.length < 2) {
-      return res.status(400).json({ message: "At least two projects required for comparison" });
+      return res
+        .status(400)
+        .json({ message: "At least two projects required for comparison" });
     }
 
     // Find projects with access control
     const projects = await Project.find({
       _id: { $in: projectIds },
-      userId: req.userId
+      userId: req.userId,
     }).select("filePath");
 
     if (projects.length !== projectIds.length) {
-      return res.status(404).json({ message: "One or more projects not found" });
+      return res
+        .status(404)
+        .json({ message: "One or more projects not found" });
     }
 
-    const filePaths = projects.map(project => project.filePath);
+    // Get user preferences
+    const preferences = await UserPreferences.findOne({ userId: req.userId });
+    if (!preferences) {
+      return res.status(400).json({ message: "User preferences not found" });
+    }
 
-    // Get comparative analysis from LLM
-    const result = await compareFinancialData(filePaths);
+    const filePaths = projects.map((project) => project.filePath);
+
+    // Use services layer for comparison
+    const result = await services.compareFinancialData(preferences, filePaths);
     const parsedResult = JSON.parse(result);
-    console.log(parsedResult);
 
     // Validate LLM response structure
     if (!parsedResult?.Analysis || !parsedResult?.ComparativeCharts) {
@@ -47,10 +59,10 @@ router.get("/", protect, async (req, res) => {
       uploadedFiles: filePaths,
       analysisResult: {
         Analysis: parsedResult.Analysis,
-        ComparativeCharts: parsedResult.ComparativeCharts
+        ComparativeCharts: parsedResult.ComparativeCharts,
       },
       // bestPerformingCompany is auto-populated from schema default
-      createdBy: req.userId // Add user reference from auth middleware
+      createdBy: req.userId, // Add user reference from auth middleware
     });
 
     await newAnalysis.save();
@@ -61,22 +73,20 @@ router.get("/", protect, async (req, res) => {
         analysis: newAnalysis.analysisResult.Analysis,
         charts: newAnalysis.analysisResult.ComparativeCharts,
         bestPerformingCompany: newAnalysis.bestPerformingCompany,
-        id: newAnalysis._id
-      }
+        id: newAnalysis._id,
+      },
     });
-
   } catch (error) {
     console.error("Comparison error:", error);
     const statusCode = error.message.includes("Invalid analysis") ? 502 : 500;
-    res.status(statusCode).json({ 
+    res.status(statusCode).json({
       success: false,
-      message: error.message.startsWith("Invalid") 
-        ? "AI analysis failed - invalid response format" 
+      message: error.message.startsWith("Invalid")
+        ? "AI analysis failed - invalid response format"
         : "Comparison processing failed",
-      error: error.message
+      error: error.message,
     });
   }
 });
 
 module.exports = router;
-
