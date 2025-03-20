@@ -48,7 +48,66 @@ const generateContent = async (input, temperature = 0.3) => {
       max_tokens: 4096,
       response_format: { type: "json_object" },
     });
-    return completion.choices[0].message.content;
+
+    const response = completion.choices[0].message.content;
+    
+    // Parse and clean the response to ensure valid JSON
+    try {
+      const parsedResponse = JSON.parse(response);
+      
+      // Clean percentage values in GrowthRateComparison
+      if (parsedResponse.ComparativeCharts?.GrowthRateComparison?.datasets) {
+        parsedResponse.ComparativeCharts.GrowthRateComparison.datasets = 
+          parsedResponse.ComparativeCharts.GrowthRateComparison.datasets.map(dataset => ({
+            ...dataset,
+            data: dataset.data.map(value => {
+              // Convert percentage strings to numbers
+              if (typeof value === 'string' && value.includes('%')) {
+                return parseFloat(value.replace('%', ''));
+              }
+              return value;
+            })
+          }));
+      }
+
+      // Format Analysis fields as strings if they are objects
+      if (parsedResponse.Analysis) {
+        const { Analysis } = parsedResponse;
+        
+        // Format KeyMetrics
+        if (typeof Analysis.KeyMetrics === 'object') {
+          Analysis.KeyMetrics = Object.entries(Analysis.KeyMetrics)
+            .map(([metric, values]) => {
+              if (typeof values === 'object') {
+                return `${metric}: ${Object.entries(values)
+                  .map(([company, value]) => `${company}: ${value}`)
+                  .join(', ')}`;
+              }
+              return `${metric}: ${values}`;
+            })
+            .join('\n');
+        }
+
+        // Format Trends
+        if (typeof Analysis.Trends === 'object') {
+          Analysis.Trends = Object.entries(Analysis.Trends)
+            .map(([metric, trend]) => `${metric}: ${trend}`)
+            .join('\n');
+        }
+
+        // Format Recommendations
+        if (typeof Analysis.Recommendations === 'object') {
+          Analysis.Recommendations = Object.entries(Analysis.Recommendations)
+            .map(([company, rec]) => `${company}: ${rec}`)
+            .join('\n');
+        }
+      }
+      
+      return JSON.stringify(parsedResponse);
+    } catch (parseError) {
+      console.error("Error parsing or cleaning response:", parseError);
+      throw new Error("Failed to parse generated content");
+    }
   } catch (error) {
     console.error("Groq API Error:", error);
     throw new Error("Failed to generate content");
@@ -56,7 +115,6 @@ const generateContent = async (input, temperature = 0.3) => {
 };
 
 // Function to analyze a single Excel file's financial data.
-// Note: We now return the raw response text so that your API's JSON.parse() logic works as expected.
 module.exports.analyzeFinancialData = async (filePath, temperature, prompt) => {
   const excelText = await inputExcelText(filePath);
 
@@ -73,7 +131,10 @@ module.exports.analyzeFinancialData = async (filePath, temperature, prompt) => {
     - Provide actionable insights on how to improve financial performance
     - Give insights and improvement suggestions pointwise
 
-    **Important:** Return the key insights as an array of strings (not objects). Each string should concisely summarize one insight.
+    **Important:** 
+    - Return the key insights as an array of strings (not objects)
+    - All numeric values should be plain numbers without any symbols (%, $, etc.)
+    - Growth rates should be expressed as decimal numbers (e.g., 0.253 for 25.3%)
 
     Here is the raw financial data extracted from an Excel file:
     ${excelText}
@@ -131,18 +192,18 @@ module.exports.queryFinancialData = async (
   temperature,
   prompt
 ) => {
-  // Retrieve the Excel content from the file path
   const excelText = await inputExcelText(filePath);
 
-  // Construct the prompt with strict instructions to output ONLY valid JSON
-  // and to focus on providing a "RelevantData" array with detailed data points.
   const queryPrompt = `
     ${prompt || ""}
     
     Act as a financial expert analyzing the given data.
     Answer the user's question based on the financial data provided.
     Provide visualizations that best represent the data for the query.
-    Return only valid JSON without any additional commentary or text.
+
+    **Important:**
+    - All numeric values should be plain numbers without any symbols (%, $, etc.)
+    - Growth rates should be expressed as decimal numbers (e.g., 0.253 for 25.3%)
 
     User Question: "${userQuery}"
 
@@ -187,7 +248,6 @@ module.exports.queryFinancialData = async (
     Only include chart types that are relevant to the query.
   `;
 
-  // Generate the response using Groq
   return await generateContent(queryPrompt, temperature);
 };
 
@@ -218,6 +278,12 @@ module.exports.compareFinancialData = async (
     - Future projections and improvement suggestions
     - Final performance ranking with justification
 
+    **Important:**
+    - All numeric values should be plain numbers without any symbols (%, $, etc.)
+    - Growth rates should be expressed as decimal numbers (e.g., 0.253 for 25.3%)
+    - Ensure all datasets have the same number of data points for valid comparison
+    - Format all analysis text as plain strings, not objects
+
     Chart Requirements:
     Generate COMPARATIVE visualizations showing differences between companies.
     Use these chart structures:
@@ -240,8 +306,8 @@ module.exports.compareFinancialData = async (
         "GrowthRateComparison": {
           "labels": ["YoY Growth", "QoQ Growth"],
           "datasets": [
-            {"label": "Company A", "data": [15, 5]},
-            {"label": "Company B", "data": [20, 8]}
+            {"label": "Company A", "data": [0.15, 0.05]},
+            {"label": "Company B", "data": [0.20, 0.08]}
           ]
         }
       }
@@ -257,9 +323,9 @@ module.exports.compareFinancialData = async (
     Respond in JSON format (without markdown) with this structure:
     {
       "Analysis": {
-        "KeyMetrics": "...",
-        "Trends": "...",
-        "Recommendations": "...",
+        "KeyMetrics": "Key metrics comparison as a single string with line breaks...",
+        "Trends": "Trends analysis as a single string with line breaks...",
+        "Recommendations": "Recommendations as a single string with line breaks...",
         "PerformanceRanking": ["CompanyX", "CompanyY", ...]
       },
       "ComparativeCharts": {

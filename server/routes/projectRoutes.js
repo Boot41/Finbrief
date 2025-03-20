@@ -177,45 +177,45 @@ router.get("/:id", protect, async (req, res) => {
   }
 });
 
-// Update project status
-router.patch("/:id/status", protect, async (req, res) => {
-  try {
-    const { status } = req.body;
-    const project = await Project.findOneAndUpdate(
-      { _id: req.params.id, userId: req.userId },
-      { status },
-      { new: true }
-    );
+// // Update project status
+// router.patch("/:id/status", protect, async (req, res) => {
+//   try {
+//     const { status } = req.body;
+//     const project = await Project.findOneAndUpdate(
+//       { _id: req.params.id, userId: req.userId },
+//       { status },
+//       { new: true }
+//     );
 
-    if (!project) {
-      return res.status(404).json({ message: "Project not found" });
-    }
+//     if (!project) {
+//       return res.status(404).json({ message: "Project not found" });
+//     }
 
-    res.json(project);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+//     res.json(project);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// });
 
 // Update project summary and insights
-router.patch("/:id", protect, async (req, res) => {
-  try {
-    const { summary, insights } = req.body;
-    const project = await Project.findOneAndUpdate(
-      { _id: req.params.id, userId: req.userId },
-      { summary, insights },
-      { new: true }
-    );
+// router.patch("/:id", protect, async (req, res) => {
+//   try {
+//     const { summary, insights } = req.body;
+//     const project = await Project.findOneAndUpdate(
+//       { _id: req.params.id, userId: req.userId },
+//       { summary, insights },
+//       { new: true }
+//     );
 
-    if (!project) {
-      return res.status(404).json({ message: "Project not found" });
-    }
+//     if (!project) {
+//       return res.status(404).json({ message: "Project not found" });
+//     }
 
-    res.json(project);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+//     res.json(project);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// });
 
 // Delete a project
 router.delete("/:id", protect, async (req, res) => {

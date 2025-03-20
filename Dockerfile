@@ -1,23 +1,50 @@
-# Use an official Node.js runtime as a parent image
-FROM node:21-alpine
+# ================================
+# Stage 1: Build the Client
+# ================================
+FROM node:21-alpine AS client-builder
+WORKDIR /client
 
-# Set the working directory in the container
+# Copy package files and install dependencies
+COPY client/package.json client/package-lock.json* ./
+RUN npm install --force
+
+# Copy the client source code and .env file
+COPY client/ .
+
+# Build the client (output to /client/dist)
+RUN npm run build
+
+# ================================
+# Stage 2: Build the Server
+# ================================
+FROM node:21-alpine AS server-builder
+WORKDIR /server
+
+# Copy package files and install dependencies
+COPY server/package.json server/package-lock.json* ./
+RUN npm install
+
+# Copy the rest of the server code and .env file
+COPY server/ .
+COPY server/.env .env
+
+# ================================
+# Stage 3: Production Image (Integrated)
+# ================================
+FROM node:21-alpine
 WORKDIR /app
 
-# Copy package.json and package-lock.json from both client and server
-COPY client/package*.json ./client/
-COPY server/package*.json ./server/
+# Copy the built client artifacts into the "public" folder
+COPY --from=client-builder /client/dist ./public
 
-# Install dependencies for both client and server
-RUN npm install --prefix ./client
-RUN npm install --prefix ./server
+# Copy the server code (and its dependencies)
+COPY --from=server-builder /server ./
 
-# Copy the rest of the application code from both directories
-COPY client ./client
-COPY server ./server
+# (Optional) Copy environment files if needed
+COPY server/.env server/.env
 
-# Expose the ports the apps run on
-EXPOSE 5000 5173
+# Expose only the backend port
+EXPOSE 5000
 
-# Command to run the applications
-CMD ["sh", "-c", "npm run dev --prefix ./client & node ./server/index.js"]
+# Start the server (which serves both API and static files)
+CMD ["node", "index.js"]
