@@ -251,6 +251,8 @@ module.exports.queryFinancialData = async (
   return await generateContent(queryPrompt, temperature);
 };
 
+
+
 // Function to compare financial data across multiple Excel files
 module.exports.compareFinancialData = async (
   filePaths,

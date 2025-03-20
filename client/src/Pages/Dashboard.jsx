@@ -292,7 +292,7 @@ const Dashboard = () => {
           ? "Analysis failed - please try different projects"
           : "Comparison service unavailable");
 
-      alert(`Comparison failed: ${errorMessage}`);
+      alert(`Rate limit exceeded. Please try again later.`);
     } finally {
       setIsComparing(false); // Stop loading regardless of success/error
     }

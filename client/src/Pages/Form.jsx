@@ -84,7 +84,7 @@ export default function Form() {
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
       {/* Left Side - Design and Headings */}
-      <div className="flex flex-col items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-100 p-8 md:w-1/2">
+      <div className="flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-8 md:w-1/2">
         <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-indigo-100">
           <UserCircle className="h-16 w-16 text-indigo-600" />
         </div>
