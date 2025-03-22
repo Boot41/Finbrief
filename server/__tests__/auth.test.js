@@ -12,6 +12,13 @@ const cors = require('cors');
 // Mock the protect middleware
 jest.mock('../middleware/authMiddleware', () => require('./helpers/authMiddleware'));
 
+// Mock the google-auth-library
+jest.mock('google-auth-library', () => ({
+  OAuth2Client: jest.fn().mockImplementation(() => ({
+    verifyIdToken: jest.fn()
+  }))
+}));
+
 let mongoServer;
 const app = express();
 app.use(cors());
@@ -23,6 +30,7 @@ beforeAll(async () => {
   const mongoUri = await mongoServer.getUri();
   await mongoose.connect(mongoUri);
   process.env.JWT_SECRET = 'test-secret';
+  process.env.GOOGLE_CLIENT_ID = 'mock-client-id';
 });
 
 afterAll(async () => {
@@ -32,6 +40,8 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await User.deleteMany({});
+  // Reset all mocks before each test
+  jest.clearAllMocks();
 });
 
 describe('Auth Routes', () => {
@@ -176,6 +186,85 @@ describe('Auth Routes', () => {
         .set('Authorization', 'Bearer invalid-token');
 
       expect(response.status).toBe(401);
+    });
+  });
+
+  describe('POST /api/auth/google/callback', () => {
+    const mockGooglePayload = {
+      email: 'google@example.com',
+      name: 'Google User',
+      sub: '12345'
+    };
+
+    beforeEach(() => {
+      // Mock the verifyIdToken implementation for each test
+      const { OAuth2Client } = require('google-auth-library');
+      OAuth2Client.prototype.verifyIdToken = jest.fn().mockResolvedValue({
+        getPayload: () => mockGooglePayload
+      });
+    });
+
+    it('should create a new user when Google user first time login', async () => {
+      const response = await request(app)
+        .post('/api/auth/google/callback')
+        .send({ token: 'valid-google-token' });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('token');
+      expect(response.body).toHaveProperty('user');
+      expect(response.body.user).toHaveProperty('email', mockGooglePayload.email);
+      expect(response.body.user).toHaveProperty('name', mockGooglePayload.name);
+      expect(response.body.user).toHaveProperty('googleAuth', true);
+      expect(response.body).toHaveProperty('trimmedemail', 'google');
+
+      // Verify user was created in database
+      const user = await User.findOne({ email: mockGooglePayload.email });
+      expect(user).toBeTruthy();
+      expect(user.googleAuth).toBe(true);
+    });
+
+    it('should login existing Google user', async () => {
+      // First create a Google user
+      await request(app)
+        .post('/api/auth/google/callback')
+        .send({ token: 'valid-google-token' });
+
+      // Try logging in with the same Google account
+      const response = await request(app)
+        .post('/api/auth/google/callback')
+        .send({ token: 'valid-google-token' });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('token');
+      expect(response.body.user).toHaveProperty('email', mockGooglePayload.email);
+      expect(response.body).toHaveProperty('trimmedemail', 'google');
+
+      // Verify no duplicate user was created
+      const users = await User.find({ email: mockGooglePayload.email });
+      expect(users).toHaveLength(1);
+    });
+
+    it('should handle invalid Google token', async () => {
+      const { OAuth2Client } = require('google-auth-library');
+      OAuth2Client.prototype.verifyIdToken = jest.fn().mockRejectedValue(
+        new Error('Invalid token')
+      );
+
+      const response = await request(app)
+        .post('/api/auth/google/callback')
+        .send({ token: 'invalid-google-token' });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error', 'Invalid Google token');
+    });
+
+    it('should handle missing token', async () => {
+      const response = await request(app)
+        .post('/api/auth/google/callback')
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error', 'Invalid Google token');
     });
   });
 });

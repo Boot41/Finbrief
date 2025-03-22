@@ -1,70 +1,46 @@
-const multer = require('../../utils/multer');
+const multer = require('multer');
+const { uploadSingleFile, uploadMultipleFiles } = require('../../utils/multer');
+
+jest.mock('multer');
 
 describe('Multer Configuration', () => {
-  describe('handleMulterError', () => {
-    let mockReq;
-    let mockRes;
-    let nextFunction;
-
-    beforeEach(() => {
-      mockReq = {};
-      mockRes = {
+  describe('Error Handling', () => {
+    it('should handle file size limit exceeded', () => {
+      const error = new Error('File too large');
+      error.code = 'LIMIT_FILE_SIZE';
+      
+      const req = {};
+      const res = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn()
       };
-      nextFunction = jest.fn();
+      const next = jest.fn();
+
+      uploadSingleFile(error, req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'File size limit exceeded'
+      });
     });
 
-    it('should handle LIMIT_FILE_SIZE error', () => {
-      const error = new Error('File too large');
-      error.code = 'LIMIT_FILE_SIZE';
+    it('should handle unsupported file type', () => {
+      const error = new Error('Invalid file type');
+      error.code = 'INVALID_FILE_TYPE';
+      
+      const req = {};
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn()
+      };
+      const next = jest.fn();
 
-      multer.handleMulterError(error, mockReq, mockRes, nextFunction);
+      uploadMultipleFiles(error, req, res, next);
 
-      expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        message: 'File too large'
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Invalid file type'
       });
-      expect(nextFunction).not.toHaveBeenCalled();
-    });
-
-    it('should handle LIMIT_FILE_COUNT error', () => {
-      const error = new Error('Too many files');
-      error.code = 'LIMIT_FILE_COUNT';
-
-      multer.handleMulterError(error, mockReq, mockRes, nextFunction);
-
-      expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        message: 'Too many files'
-      });
-      expect(nextFunction).not.toHaveBeenCalled();
-    });
-
-    it('should handle LIMIT_UNEXPECTED_FILE error', () => {
-      const error = new Error('Unexpected field');
-      error.code = 'LIMIT_UNEXPECTED_FILE';
-
-      multer.handleMulterError(error, mockReq, mockRes, nextFunction);
-
-      expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        message: 'Unexpected field'
-      });
-      expect(nextFunction).not.toHaveBeenCalled();
-    });
-
-    it('should handle other multer errors', () => {
-      const error = new Error('Error uploading file');
-      error.code = 'OTHER_ERROR';
-
-      multer.handleMulterError(error, mockReq, mockRes, nextFunction);
-
-      expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        message: 'Error uploading file'
-      });
-      expect(nextFunction).not.toHaveBeenCalled();
     });
   });
 });

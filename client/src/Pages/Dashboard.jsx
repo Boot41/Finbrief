@@ -54,7 +54,7 @@ const Dashboard = () => {
   const fetchProjects = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get("http://localhost:5000/api/projects", {
+      const response = await axios.get("/api/projects", {
         headers: {
           token: localStorage.getItem("token"),
         },
@@ -84,7 +84,7 @@ const Dashboard = () => {
     formData.append("file", file);
 
     try {
-      await axios.post("http://localhost:5000/api/projects", formData, {
+      await axios.post("/api/projects", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           token: localStorage.getItem("token"),
@@ -105,7 +105,7 @@ const Dashboard = () => {
   // Handle project deletion
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/projects/${id}`, {
+      await axios.delete(`/api/projects/${id}`, {
         headers: { token: localStorage.getItem("token") },
       });
       fetchProjects();
@@ -125,7 +125,7 @@ const Dashboard = () => {
       // If project hasn't been analyzed yet, trigger analysis
       if (project.status !== "analyzed") {
         const response = await axios.post(
-          `http://localhost:5000/api/projects/analyze/${project._id}`,
+          `/api/projects/analyze/${project._id}`,
           {},
           {
             headers: {
@@ -182,7 +182,7 @@ const Dashboard = () => {
       // If project hasn't been analyzed yet, trigger analysis
       if (project.status !== "analyzed") {
         const response = await axios.post(
-          `http://localhost:5000/api/projects/analyze/${project._id}`,
+          `/api/projects/analyze/${project._id}`,
           {},
           {
             headers: {
@@ -253,7 +253,7 @@ const Dashboard = () => {
     try {
       setIsComparing(true); // Start loading
       const response = await axios.get(
-        `http://localhost:5000/api/compare?projectIds=${selectedProjects.join(
+        `/api/compare?projectIds=${selectedProjects.join(
           ","
         )}`,
         {

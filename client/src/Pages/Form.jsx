@@ -19,7 +19,7 @@ export default function Form() {
     async function fetchPreferences() {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/projects/form",
+          "/api/projects/form",
           {
             headers: {
               token: localStorage.getItem("token"),
@@ -63,7 +63,7 @@ export default function Form() {
       }
 
       const response = await axios.post(
-        "http://localhost:5000/api/projects/form",
+        "/api/projects/form",
         {
           modelType,
           temperature: Number(temperature),

@@ -25,7 +25,7 @@ const Login = ({ onLogin }) => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        "/api/auth/login",
         formData
       );
       if (response.data.token) {
@@ -113,7 +113,7 @@ const Login = ({ onLogin }) => {
                 const decoded = jwtDecode(credential);
                 try {
                   const res = await axios.post(
-                    "http://localhost:5000/api/auth/google/callback",
+                    "/api/auth/google/callback",
                     {
                       token: credential,
                     }

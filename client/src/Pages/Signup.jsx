@@ -25,7 +25,7 @@ const Signup = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/signup",
+        "/api/auth/signup",
         formData
       );
       if (response.status === 201) {
@@ -135,7 +135,7 @@ const Signup = () => {
                 const credential = response.credential;
                 try {
                   const res = await axios.post(
-                    "http://localhost:5000/api/auth/google/callback",
+                    "/api/auth/google/callback",
                     {
                       token: credential,
                     }

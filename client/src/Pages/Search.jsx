@@ -98,7 +98,7 @@ const Search = () => {
     setError(null);
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/projects/search/${projectId}?query=${encodeURIComponent(
+        `/api/projects/search/${projectId}?query=${encodeURIComponent(
           searchQuery
         )}`,
         {

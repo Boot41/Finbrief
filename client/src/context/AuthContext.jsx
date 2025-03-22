@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkToken = async () => {
     if (localStorage.getItem("token")) {
-      const me = await axios.get("http://localhost:5000/api/auth/me", {
+      const me = await axios.get("/api/auth/me", {
         headers: { token: ` ${localStorage.getItem("token")}` },
       });
 

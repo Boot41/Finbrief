@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">67.3% </span>
+                <span class="strong">78.84% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>35/52</span>
+                <span class='fraction'>41/52</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>3/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
+                <span class="strong">78.43% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>34/51</span>
+                <span class='fraction'>40/51</span>
             </div>
         
             
@@ -260,31 +260,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -296,7 +290,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -384,17 +384,17 @@ router.post("/login", async (req, res) =&gt; {
 });
 &nbsp;
 // Google Login Route (Callback)
-router.post("/google/callback", <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
-<span class="cstat-no" title="statement not covered" >  try {</span>
-    const { token } = <span class="cstat-no" title="statement not covered" >req.body;</span>
+router.post("/google/callback", async (req, res) =&gt; {
+  try {
+    const { token } = req.body;
 &nbsp;
     // Verify the Google token
-    const ticket = <span class="cstat-no" title="statement not covered" >await client.verifyIdToken({</span>
+    const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
 &nbsp;
-    const payload = <span class="cstat-no" title="statement not covered" >ticket.getPayload();</span>
+    const payload = ticket.getPayload();
 &nbsp;
     const { email, name } = <span class="cstat-no" title="statement not covered" >payload;</span>
     let trimmedemail = <span class="cstat-no" title="statement not covered" >payload.email.split("@")[0];</span>
@@ -420,8 +420,8 @@ router.post("/google/callback", <span class="fstat-no" title="function not cover
       trimmedemail,
     });
   } catch (error) {
-<span class="cstat-no" title="statement not covered" >    console.error("Google Token Verification Error:", error);</span>
-<span class="cstat-no" title="statement not covered" >    res.status(400).json({ error: "Invalid Google token" });</span>
+    console.error("Google Token Verification Error:", error);
+    res.status(400).json({ error: "Invalid Google token" });
   }
 });
 &nbsp;
@@ -445,7 +445,7 @@ module.exports = router;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-20T21:28:50.534Z
+                at 2025-03-21T06:12:49.234Z
             </div>
         <script src="../prettify.js"></script>
         <script>

@@ -60,6 +60,7 @@ afterAll(async () => {
 beforeEach(async () => {
   await Project.deleteMany({});
   await UserPreferences.deleteMany({});
+  jest.clearAllMocks();
 });
 
 describe('Project Routes', () => {
@@ -256,8 +257,25 @@ describe('Project Routes', () => {
 
   describe('POST /api/projects/analyze/:id', () => {
     let projectId;
+    const mockAnalysisResponse = {
+      Summary: 'Test summary',
+      KeyInsights: ['Insight 1', 'Insight 2'],
+      ChartData: { labels: [], data: [] },
+      forecast: 'Positive growth expected',
+      FuturePredictions: ['Prediction 1', 'Prediction 2'],
+      improvementsuggestions: ['Suggestion 1', 'Suggestion 2']
+    };
 
     beforeEach(async () => {
+      // Create test user preferences
+      await UserPreferences.create({
+        userId,
+        modelType: 'gemma2-9b-it',
+        temperature: 0.7,
+        profession: 'Financial Analyst',
+        style: 'Formal'
+      });
+
       // Create a test project
       const project = await Project.create({
         userId,
@@ -269,58 +287,67 @@ describe('Project Routes', () => {
       });
       projectId = project._id;
 
-      // Create test user preferences
-      await UserPreferences.create({
-        userId,
-        modelType: 'gemma2-9b-it',
-        temperature: 0.7,
-        profession: 'Financial Analyst',
-        style: 'Formal'
-      });
+      // Mock the services.analyzeFinancialData function
+      services.analyzeFinancialData.mockResolvedValue(JSON.stringify(mockAnalysisResponse));
     });
 
     it('should successfully analyze a project', async () => {
-      const mockAnalysis = {
-        Summary: 'Test summary',
-        KeyInsights: ['Insight 1', 'Insight 2'],
-        ChartData: { data: [1, 2, 3] },
-        forecast: 'Positive growth',
-        FuturePredictions: ['Prediction 1', 'Prediction 2'],
-        improvementsuggestions: ['Suggestion 1', 'Suggestion 2']
-      };
-
-      services.analyzeFinancialData.mockResolvedValue(JSON.stringify(mockAnalysis));
-
       const response = await request(app)
         .post(`/api/projects/analyze/${projectId}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('summary', 'Test summary');
-      expect(response.body).toHaveProperty('insights');
-      expect(response.body).toHaveProperty('chartData');
+      expect(response.body).toHaveProperty('summary', mockAnalysisResponse.Summary);
+      expect(response.body).toHaveProperty('insights', mockAnalysisResponse.KeyInsights);
+      expect(response.body).toHaveProperty('chartData', mockAnalysisResponse.ChartData);
+      expect(response.body).toHaveProperty('forecast', mockAnalysisResponse.forecast);
+      expect(response.body).toHaveProperty('futurePredictions', mockAnalysisResponse.FuturePredictions);
+      expect(response.body).toHaveProperty('improvementsuggestions', mockAnalysisResponse.improvementsuggestions);
       expect(response.body).toHaveProperty('status', 'analyzed');
+
+      // Verify service was called with correct parameters
+      expect(services.analyzeFinancialData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId,
+          modelType: 'gemma2-9b-it',
+          temperature: 0.7,
+          profession: 'Financial Analyst',
+          style: 'Formal'
+        }),
+        '/path/to/test.xlsx'
+      );
     });
 
-    it('should return 404 if project not found', async () => {
+    it('should handle project not found', async () => {
       const fakeId = new mongoose.Types.ObjectId();
       const response = await request(app)
         .post(`/api/projects/analyze/${fakeId}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Project not found');
+      expect(response.body).toHaveProperty('message', 'Project not found');
     });
 
-    it('should return 400 if user preferences not found', async () => {
-      await UserPreferences.deleteMany({}); // Remove user preferences
+    it('should handle missing user preferences', async () => {
+      await UserPreferences.deleteMany({}); // Remove all preferences
 
       const response = await request(app)
         .post(`/api/projects/analyze/${projectId}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('User preferences not found');
+      expect(response.body).toHaveProperty('message', 'User preferences not found');
+    });
+
+    it('should handle analysis service errors', async () => {
+      services.analyzeFinancialData.mockRejectedValue(new Error('Analysis failed'));
+
+      const response = await request(app)
+        .post(`/api/projects/analyze/${projectId}`)
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('message', 'Analysis failed');
     });
 
     it('should handle invalid JSON response from LLM', async () => {
@@ -331,7 +358,30 @@ describe('Project Routes', () => {
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(500);
-      expect(response.body.message).toBe('Invalid JSON response from LLM');
+      expect(response.body).toHaveProperty('message', 'Invalid JSON response from LLM');
+    });
+
+    it('should handle missing file path', async () => {
+      await Project.findByIdAndUpdate(projectId, { filePath: null });
+
+      const response = await request(app)
+        .post(`/api/projects/analyze/${projectId}`)
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('message', 'No file available for analysis');
+    });
+
+    it('should handle partial JSON in LLM response', async () => {
+      const partialResponse = `Some text before {"Summary": "Test"} some text after`;
+      services.analyzeFinancialData.mockResolvedValue(partialResponse);
+
+      const response = await request(app)
+        .post(`/api/projects/analyze/${projectId}`)
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('summary', 'Test');
     });
   });
 

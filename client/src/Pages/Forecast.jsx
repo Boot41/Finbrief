@@ -38,7 +38,7 @@ const Forecast = () => {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `http://localhost:5000/api/projects/${id}`,
+          `/api/projects/${id}`,
           {
             headers: { token: localStorage.getItem("token") },
           }
